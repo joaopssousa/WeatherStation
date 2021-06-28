@@ -38,7 +38,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "vcom.h"
 #include "stm32f4xx_hal_adc.h"
 #include "stm32f4xx_hal_rcc_ex.h"
-#include "handlers.h"
+#include "ble.h"
 #include "com.h"
 
 
@@ -105,7 +105,7 @@ void HW_Init(void)
     NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x3000);
 #endif
 
-    //HW_AdcInit();
+    HW_AdcInit();
 
     Radio.IoInit();
 
@@ -120,7 +120,9 @@ void HW_Init(void)
     BSP_sensor_Init();
 
     Ble_Init_GPIO();
-    //COM_Init();
+
+    COM_Init();
+
     MX_USART1_UART_Init();
 
     MX_TIM2_Init();

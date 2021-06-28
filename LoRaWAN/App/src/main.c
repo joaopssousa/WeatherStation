@@ -28,7 +28,7 @@
 #include "timeServer.h"
 #include "vcom.h"
 #include "version.h"
-#include "handlers.h"
+#include "ble.h"
 #include "station.h"
 #include "battery_monitor.h"
 #include "fw_update_app.h"
@@ -62,8 +62,8 @@ char buffer_tag[50];
 /*!
  * Defines the application data transmission duty cycle. value in [ms].
  */
-#define APP_TX_DUTYCYCLE                            100000	// 5 min
-#define BATTERY_MONITOR_DUTYCYCLE					120000	// 7 min
+#define APP_TX_DUTYCYCLE                            10000	// 5 min
+#define BATTERY_MONITOR_DUTYCYCLE					12000	// 7 min
 
 /*!
  * LoRaWAN Adaptive Data Rate
@@ -74,7 +74,7 @@ char buffer_tag[50];
  * LoRaWAN Default data Rate Data Rate
  * @note Please note that LORAWAN_DEFAULT_DATA_RATE is used only when ADR is disabled
  */
-#define LORAWAN_DEFAULT_DATA_RATE DR_2 //modified - old - DR_0
+#define LORAWAN_DEFAULT_DATA_RATE DR_3 //modified - old - DR_0
 /*!
  * LoRaWAN application port
  * @note do not use 224. It is reserved for certification
@@ -271,7 +271,7 @@ static void VERIFY_OPEN(const char* arq){
 }
 
 static void SAVE_ON_CARD(){
-	delayed_store_flag++; 	// Contagem de TAGs atrasadas ao envio
+	//delayed_store_flag++; 	// Contagem de TAGs atrasadas ao envio
 
 	// Se não há conexão entre o gateway, armazena no cartão SD para envio posterior
 //	PRINT_SD_CARD(PRINTF("===> Escrita no cartao. Count = %d\r\n", delayed_store_flag);)
@@ -335,13 +335,31 @@ int main(void)
 
   LoraStartTx(TX_ON_TIMER);
 
-  LoraStartBatteryMonitor();
+//  LoraStartBatteryMonitor();
 
   uint32_t prim; //tratar depois as interrupcoes
-  in_use_TAG = EMPTY_QUEUE;
+  uint8_t buffer_time[6];
+  flags_ble.all_flags=0;
   while (1)
   {
 
+
+	if (flag_pluv)
+	{
+		flag_pluv=0;
+		get_time_now((uint8_t*)&buffer_time);
+		if ((buffer_time[3] == 23) && (buffer_time[4] == 59) && buffer_time[5] > 40)
+		{
+		  // Inicio de outro dia, zera-se o contador de precipitação.
+		  PLUVIOMETER_COUNT = 0;
+		}
+	}
+
+	if (flags_ble.enable_handler){
+		flags_ble.enable_handler = 0;
+		HAL_TIM_Base_Stop(&htim2);
+		ble_handler((uint8_t*)&message_ble);					// Aciona o handler para selecionar a mensagem de resposta.
+	}
 	if (flags_ble.update_mode){
 
 		prim = __get_PRIMASK();
@@ -356,7 +374,6 @@ int main(void)
 		COM_Init();
 		HAL_Delay(1);
 		COM_Flush();
-
 		//Enter in Update Mode
 		FW_UPDATE_Run();
 
@@ -373,10 +390,10 @@ int main(void)
     }
 
     //Send battery voltage
-    if (send_battery_voltage_flag == LORA_SET) {
-		send_battery_voltage_flag = LORA_RESET;
-		Send_Battery_Voltage(NULL);
-	}
+//    if (send_battery_voltage_flag == LORA_SET) {
+//		send_battery_voltage_flag = LORA_RESET;
+//		Send_Battery_Voltage(NULL);
+//	}
 
     if (LoraMacProcessRequest == LORA_SET)
     {
@@ -415,31 +432,31 @@ static void LORA_HasJoined(void)
 
 static void Send_Battery_Voltage(void *context) {
 
-	float vbat;
+//	double vbat;
+//	uint16_t vbat_int;
+//	vbat = get_battery_voltage();
+//	vbat_int = (uint16_t)(double)(vbat*100);
+//	AppData.Port = LORAWAN_APP_PORT;
+//
+//	get_time_now(AppData.Buff);
+//
+//	AppData.BuffSize = 8;
+//	AppData.Buff[6] = (vbat_int>>8)&0xFF;
+//	AppData.Buff[7] =  vbat_int&0xFF;
+//
+//	if (LORA_JoinStatus() != LORA_SET) {
+//		/*Not joined, try again later*/
+//		LORA_Join();
+//		return;
+//	}
+//
+//	TVL1(PRINTF("SEND Battery voltage\n\r");)
+//	LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
+
+	double vbat;
 	uint16_t vbat_int;
 	vbat = get_battery_voltage();
-	vbat_int = (uint16_t)(float)(vbat*100);
-	AppData.Port = LORAWAN_APP_PORT;
-
-	get_time_now(AppData.Buff);
-
-	AppData.BuffSize = 8;
-	AppData.Buff[6] = (vbat_int>>8)&0xFF;
-	AppData.Buff[7] =  vbat_int&0xFF;
-
-	if (LORA_JoinStatus() != LORA_SET) {
-		/*Not joined, try again later*/
-		LORA_Join();
-		return;
-	}
-
-	TVL1(PRINTF("SEND Battery voltage\n\r");)
-	LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
-
-}
-
-
-static void Send(void *context) {
+	vbat_int = (uint16_t)(double)(vbat*100);
 
 	if (LORA_JoinStatus() != LORA_SET) {
 		/*Not joined, try again later*/
@@ -449,13 +466,61 @@ static void Send(void *context) {
 
 	TVL1(PRINTF("SEND REQUEST\n\r");)
 
+	get_time_now(AppData.Buff);
+
 	Sensores(&Parameters);
+
+	init_battery_monitor();							/* Initialize Battery monitor */
+	vbat = get_battery_voltage();
+	vbat_int = (uint16_t)(double)(vbat*100);
 
 	AppData.Port = LORAWAN_APP_PORT;
 
-	muda_buffer(&AppData, Buffer_to_send);
+	//muda_buffer(&AppData[6], Buffer_to_send);
+	memcpy(&(AppData.Buff[6]),Buffer_to_send,sizeof(Estation_Parameters));
 
-	AppData.BuffSize = sizeof(Estation_Parameters);
+	AppData.Buff[19]= (vbat_int>>8)&0xFF;
+	AppData.Buff[20]= vbat_int&0xFF;
+
+	AppData.BuffSize = sizeof(Estation_Parameters)+8;
+
+	LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
+
+}
+
+
+static void Send(void *context) {
+
+	double vbat;
+	uint16_t vbat_int;
+	vbat = get_battery_voltage();
+	vbat_int = (uint16_t)(double)(vbat*100);
+
+	if (LORA_JoinStatus() != LORA_SET) {
+		/*Not joined, try again later*/
+		LORA_Join();
+		return;
+	}
+
+	TVL1(PRINTF("SEND REQUEST\n\r");)
+
+	get_time_now(AppData.Buff);
+
+	Sensores(&Parameters);
+
+	init_battery_monitor();							/* Initialize Battery monitor */
+	vbat = get_battery_voltage();
+	vbat_int = (uint16_t)(double)(vbat*100);
+
+	AppData.Port = LORAWAN_APP_PORT;
+
+	//muda_buffer(&AppData[6], Buffer_to_send);
+	memcpy(&(AppData.Buff[6]),Buffer_to_send,sizeof(Estation_Parameters));
+
+	AppData.Buff[19]= (vbat_int>>8)&0xFF;
+	AppData.Buff[20]= vbat_int&0xFF;
+
+	AppData.BuffSize = sizeof(Estation_Parameters)+8;
 
 	LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
 
@@ -521,7 +586,6 @@ static void OnTxTimerEvent(void *context)
 {
   /*Wait for next tx slot*/
   TimerStart(&TxTimer);
-
   AppProcessRequest = LORA_SET;
 }
 
@@ -529,10 +593,6 @@ static void OnBatteryTimerEvent(void *context) {
 	/*Wait for next tx slot*/
 	TimerStart(&battery_monitor_timer);
 	send_battery_voltage_flag = LORA_SET;
-}
-
-static void LoraStopTx(void) {
-	TimerStop(&TxTimer);
 }
 
 static void LoraStartBatteryMonitor(void) {
@@ -562,7 +622,7 @@ static void LORA_ConfirmClass(DeviceClass_t Class)
   AppData.BuffSize = 0;
   AppData.Port = LORAWAN_APP_PORT;
 
-  LORA_send(&AppData, LORAWAN_UNCONFIRMED_MSG);
+  LORA_send((lora_AppData_t*)&AppData, LORAWAN_UNCONFIRMED_MSG);
 }
 
 static void LORA_TxNeeded(void)
@@ -570,7 +630,7 @@ static void LORA_TxNeeded(void)
   AppData.BuffSize = 0;
   AppData.Port = LORAWAN_APP_PORT;
 
-  LORA_send(&AppData, LORAWAN_UNCONFIRMED_MSG);
+  LORA_send((lora_AppData_t*)&AppData, LORAWAN_UNCONFIRMED_MSG);
 }
 
 /**

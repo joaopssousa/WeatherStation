@@ -32,6 +32,106 @@
 			<locationURI>PARENT-2-PROJECT_LOC/readme.txt</locationURI>
 		</link>
 		<link>
+			<name>Projects/bsp.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/bsp.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/common.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/common.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/debug.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/debug.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/flash_if.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/flash_if.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/fw_update_app.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/fw_update_app.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/hw_gpio.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/hw_gpio.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/hw_i2c.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/hw_i2c.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/hw_rtc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/hw_rtc.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/hw_spi.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/hw_spi.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/hw_timer.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/hw_timer.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/main.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/main.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/mpu.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/mpu.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/sdio.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/sdio.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/sfu_app_new_image.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/sfu_app_new_image.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/stm32f4xx_hal_msp.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Core/src/stm32f4xx_hal_msp.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/stm32f4xx_hw.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Core/src/stm32f4xx_hw.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/stm32f4xx_it.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Core/src/stm32f4xx_it.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/test_protections.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/test_protections.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/vcom.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/vcom.c</locationURI>
+		</link>
+		<link>
+			<name>Projects/ymodem.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/ymodem.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Core/src/system_stm32f4xx.c</locationURI>
@@ -192,106 +292,6 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/ff_gen_drv.c</locationURI>
 		</link>
 		<link>
-			<name>Projects/bsp.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/bsp.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/common.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/common.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/debug.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/debug.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/flash_if.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/flash_if.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/fw_update_app.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/fw_update_app.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/hw_gpio.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/hw_gpio.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/hw_i2c.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/hw_i2c.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/hw_rtc.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/hw_rtc.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/hw_spi.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/hw_spi.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/hw_timer.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/hw_timer.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/main.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/main.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/mpu.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/mpu.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/sdio.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/sdio.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/sfu_app_new_image.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/sfu_app_new_image.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/stm32f4xx_hal_msp.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Core/src/stm32f4xx_hal_msp.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/stm32f4xx_hw.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Core/src/stm32f4xx_hw.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/stm32f4xx_it.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Core/src/stm32f4xx_it.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/test_protections.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/test_protections.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/vcom.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/vcom.c</locationURI>
-		</link>
-		<link>
-			<name>Projects/ymodem.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/ymodem.c</locationURI>
-		</link>
-		<link>
 			<name>Projects/SW4STM32/startup_stm32f407xx.s</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/startup_stm32f407xx.s</locationURI>
@@ -332,14 +332,14 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/batteryMonitor/battery_monitor.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/Components/ble.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/ble/ble.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/Components/bmp280.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/station/bmp280.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/handlers.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/fonkan/handlers.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/radio.c</name>

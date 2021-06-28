@@ -116,7 +116,6 @@
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/batteryMonitor"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/ST/STM32_Secure_Engine/Core"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/LoRaWAN/Patterns/Basic"/>
-									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/fonkan"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/LoRaWAN/Patterns/Advanced/LmHandler/packages"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/LoRaWAN/Patterns/Advanced/LmHandler"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/LoRaWAN/Patterns/Advanced"/>
@@ -125,6 +124,7 @@
 									<listOptionValue builtIn="false" value="../../../../../Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/STM32F4xx_Nucleo"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/STM32F4xx_HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/ble"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/LoRaWAN/Crypto"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/FatFs/src"/>

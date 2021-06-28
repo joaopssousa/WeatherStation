@@ -34,11 +34,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 /* Includes ------------------------------------------------------------------*/
 #include "hw.h"
 #include "stm32f4xx_it.h"
-#include "handlers.h"
+#include "ble.h"
 
 extern uint8_t ble_state;
 uint8_t count_tim3 = 0;
 extern int b;
+
+
 
 extern DMA_HandleTypeDef hdma_sdio_rx;
 extern DMA_HandleTypeDef hdma_sdio_tx;
@@ -170,18 +172,9 @@ void SysTick_Handler(void)
 
 void TIM2_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM2_IRQn 0 */
 
-	/*
-	 * A cada 1 segundo é enviado uma requisição de leitura
-	 * da TAG mais próxima para o módulo RFID.
-	 */
-
-	//HAL_UART_Transmit(&huart2, (uint8_t *)READ_USER_SINGLE_TAG, MSG_USER_8W_SIZE, 50);
-	HAL_UART_Transmit(&huart2, (uint8_t *)READ_MULTIPLE_TAG, MSG_MULTI_TAG_SIZE, 50);
-
-
-
+//	count_velo = aux_count_velo;
+//	aux_count_velo = 0;
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
@@ -193,43 +186,6 @@ void TIM2_IRQHandler(void)
   */
 void TIM3_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM3_IRQn 0 */
-
-	// Dispara a cada 100ms para teste de conexão
-	/*
-	 * 	Timer dispara a cada 100 ms e se tiver 10 contagens, sinaliza que
-	 * 	o pino de estado se manteve em alta e conexão foi bem sucedida.
-	 */
-
-	ble_state = HAL_GPIO_ReadPin(BLE_STATE_GPIO_Port,BLE_STATE_Pin);
-	if (ble_state == 1)
-	{
-		if (++count_tim3 > 9)
-		{
-			flags_ble.connection = SET;
-			count_tim3 = 0;
-		}
-	}
-	else
-	{
-		flags_ble.connection = RESET;
-		count_tim3 = 0;
-	}
-
-	// Para as requisições de TAG pois a conexão foi quebrada
-	if(flags_ble.connection == RESET)
-	{
-			HAL_TIM_Base_Stop_IT(&htim2);
-	}
-
-	if(count_send++ == 5)
-	{
-		flag_send_timeout = SET;
-		count_send = 0;
-	}
-
-
- HAL_NVIC_ClearPendingIRQ(TIM3_IRQn); // limpa flags de interrupção
   /* USER CODE END TIM3_IRQn 0 */
   HAL_TIM_IRQHandler(&htim3);
   /* USER CODE BEGIN TIM3_IRQn 1 */
@@ -245,8 +201,8 @@ void USART1_IRQHandler(void)
 
 
 	HAL_UART_IRQHandler(&huart1);
-//	if(ble_index>sizeof(message_ble))
-//		ble_index=0;
+	if(ble_index>sizeof(message_ble))
+		ble_index=0;
 	message_ble[ble_index] = rx_byte_uart1[0];
 	ble_index++;
 	if(ble_index>2){
@@ -260,7 +216,8 @@ void USART1_IRQHandler(void)
 			{
 				// Sinaliza que chegou uma mensagem válida
 				ble_index = 0;								// Zera o índice para nova mensagem
-				ble_handler((uint8_t*)&message_ble);					// Aciona o handler para selecionar a mensagem de resposta.
+				//ble_handler((uint8_t*)&message_ble);					// Aciona o handler para selecionar a mensagem de resposta.
+				flags_ble.enable_handler=1;
 			}
 		}
 	}

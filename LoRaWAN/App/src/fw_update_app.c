@@ -34,7 +34,7 @@
 #include "string.h"
 #include "mpu.h"
 #include "util_console.h"
-#include "handlers.h"
+#include "ble.h"
 #if defined (__ICCARM__) || defined(__GNUC__)
 #include "mapping_export.h"
 #elif defined(__CC_ARM)
@@ -124,6 +124,7 @@ void FW_UPDATE_Run(void)
   {
 	  PRINTF("  -- !!Operation failed!! \r\n\n");
   }
+  HAL_NVIC_SystemReset();
 }
 #endif /* EXTERNAL_LOADER */
 

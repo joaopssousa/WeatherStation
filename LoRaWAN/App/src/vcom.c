@@ -20,8 +20,8 @@
 #include "hw.h"
 #include "com.h"
 #include "vcom.h"
-#include "curral.h"
-#include "handlers.h"
+#include "ble_def.h"
+#include "ble.h"
 
 
 #if defined(__ICCARM__)
@@ -152,7 +152,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 
 		/* USER CODE END USART2_MspInit 1 */
 	}
-	else if (huart->Instance == USARTx) {
+/*	else */if (huart->Instance == USARTx) {
 		static DMA_HandleTypeDef hdma_tx;
 
 		/*##-1- Enable peripherals and GPIO Clocks #################################*/
