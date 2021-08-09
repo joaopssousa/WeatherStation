@@ -267,17 +267,16 @@ void HW_GpioInit(void)
 /**
   * @brief  System Clock Configuration
   *         The system Clock is configured as follows :
-  *            System Clock source            = PLL (MSI)
-  *            SYSCLK(Hz)                     = 80000000
-  *            HCLK(Hz)                       = 80000000
+  *            System Clock source            = PLL (HSI)
+  *            SYSCLK(Hz)                     = 96000000
+  *            HCLK(Hz)                       = 48000000
   *            AHB Prescaler                  = 1
-  *            APB1 Prescaler                 = 1
+  *            APB1 Prescaler                 = 2
   *            APB2 Prescaler                 = 1
-  *            MSI Frequency(Hz)              = 4000000
-  *            PLL_M                          = 1
-  *            PLL_N                          = 40
-  *            PLL_R                          = 2
-  *            PLL_P                          = 7
+  *            HSI Frequency(Hz)              = 16000000
+  *            PLL_M                          = 16
+  *            PLL_N                          = 192
+  *            PLL_P                          = 2
   *            PLL_Q                          = 4
   *            Flash Latency(WS)              = 4
   * @param  None
@@ -288,7 +287,7 @@ void HW_GpioInit(void)
 
 void SystemClock_Config(void)
 {
-	RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
 	RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 	RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
 

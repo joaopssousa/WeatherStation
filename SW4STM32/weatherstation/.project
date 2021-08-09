@@ -297,36 +297,6 @@
 			<locationURI>PARENT-1-PROJECT_LOC/startup_stm32f407xx.s</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/Components/HTS221_Driver.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/hts221/HTS221_Driver.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/HTS221_Driver_HL.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/hts221/HTS221_Driver_HL.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/LPS22HB_Driver.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lps22hb/LPS22HB_Driver.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/LPS22HB_Driver_HL.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lps22hb/LPS22HB_Driver_HL.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/LPS25HB_Driver.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lps25hb/LPS25HB_Driver.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/LPS25HB_Driver_HL.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lps25hb/LPS25HB_Driver_HL.c</locationURI>
-		</link>
-		<link>
 			<name>Drivers/BSP/Components/battery_monitor.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/batteryMonitor/battery_monitor.c</locationURI>
@@ -375,26 +345,6 @@
 			<name>Drivers/BSP/STM32F4xx_Nucleo/stm32f4xx_nucleo.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/STM32F4xx_Nucleo/stm32f4xx_nucleo.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_humidity.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_humidity.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_pressure.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_pressure.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_temperature.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_temperature.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/sx1276mb1mas/sx1276mb1mas.c</name>
@@ -545,41 +495,6 @@
 			<name>Middlewares/LoRaWAN/Mac/Region/RegionUS915.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/LoRaWAN/Mac/region/RegionUS915.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/LoRaWAN/Patterns/Advanced/FragDecoder.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/LoRaWAN/Patterns/Advanced/LmHandler/packages/FragDecoder.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/LoRaWAN/Patterns/Advanced/LmHandler.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/LoRaWAN/Patterns/Advanced/LmHandler/LmHandler.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/LoRaWAN/Patterns/Advanced/LmhpClockSync.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/LoRaWAN/Patterns/Advanced/LmHandler/packages/LmhpClockSync.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/LoRaWAN/Patterns/Advanced/LmhpCompliance.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/LoRaWAN/Patterns/Advanced/LmHandler/packages/LmhpCompliance.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/LoRaWAN/Patterns/Advanced/LmhpFragmentation.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/LoRaWAN/Patterns/Advanced/LmHandler/packages/LmhpFragmentation.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/LoRaWAN/Patterns/Advanced/LmhpRemoteMcastSetup.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/LoRaWAN/Patterns/Advanced/LmHandler/packages/LmhpRemoteMcastSetup.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/LoRaWAN/Patterns/Advanced/NvmCtxMgmt.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/LoRaWAN/Patterns/Advanced/NvmCtxMgmt.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LoRaWAN/Patterns/Basic/lora-test.c</name>

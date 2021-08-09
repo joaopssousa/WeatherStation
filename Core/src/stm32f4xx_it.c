@@ -175,10 +175,9 @@ void TIM2_IRQHandler(void)
 
 //	count_velo = aux_count_velo;
 //	aux_count_velo = 0;
-  /* USER CODE END TIM2_IRQn 0 */
+
   HAL_TIM_IRQHandler(&htim2);
-  /* USER CODE BEGIN TIM2_IRQn 1 */
-  /* USER CODE END TIM2_IRQn 1 */
+
 }
 
 /**
@@ -186,11 +185,9 @@ void TIM2_IRQHandler(void)
   */
 void TIM3_IRQHandler(void)
 {
-  /* USER CODE END TIM3_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim3);
-  /* USER CODE BEGIN TIM3_IRQn 1 */
 
-  /* USER CODE END TIM3_IRQn 1 */
+  HAL_TIM_IRQHandler(&htim3);
+
 }
 
 /**
@@ -206,32 +203,15 @@ void USART1_IRQHandler(void)
 	message_ble[ble_index] = rx_byte_uart1[0];
 	ble_index++;
 	if(ble_index>2){
-
-	//*****Comentado por JP****
-	//HAL_NVIC_ClearPendingIRQ(USART1_IRQn);
-	//HAL_UART_Abort_IT(&huart1);
-	//**************************
 		if(message_ble[0] == 0xa){
 			if(message_ble[ble_index-1] == 0xd)
 			{
-				// Sinaliza que chegou uma mensagem válida
-				ble_index = 0;								// Zera o índice para nova mensagem
-				//ble_handler((uint8_t*)&message_ble);					// Aciona o handler para selecionar a mensagem de resposta.
-				flags_ble.enable_handler=1;
+
+				ble_index = 0;						// Zera o índice para nova mensagem
+				flags_ble.enable_handler=1;			// Sinaliza que chegou uma mensagem válida
 			}
 		}
 	}
-
-//  /* USER CODE BEGIN USART1_IRQn 0 */
-//	HAL_UART_Receive_IT(huart, pData, Size)(&huart1, (uint8_t*)&message_ble[ble_index++], 1, 100);
-//	if(ble_index>2){
-//		if(message_ble[ble_index-1] == 0xd)
-//		{
-//			// Sinaliza que chegou uma mensagem válida
-//			ble_index = 0;								// Zera o índice para nova mensagem
-//			ble_handler(&message_ble);					// Aciona o handler para selecionar a mensagem de resposta.
-//		}
-//	}
 
 	HAL_NVIC_ClearPendingIRQ(USART1_IRQn);
 	HAL_UART_Abort_IT(&huart1);
@@ -244,13 +224,9 @@ void USART1_IRQHandler(void)
   */
 void SDIO_IRQHandler(void)
 {
-  /* USER CODE BEGIN SDIO_IRQn 0 */
 
-  /* USER CODE END SDIO_IRQn 0 */
   HAL_SD_IRQHandler(&hsd);
-  /* USER CODE BEGIN SDIO_IRQn 1 */
 
-  /* USER CODE END SDIO_IRQn 1 */
 }
 
 /**
@@ -258,13 +234,9 @@ void SDIO_IRQHandler(void)
   */
 void DMA2_Stream3_IRQHandler(void)
 {
-  /* USER CODE BEGIN DMA2_Stream3_IRQn 0 */
 
-  /* USER CODE END DMA2_Stream3_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_sdio_rx);
-  /* USER CODE BEGIN DMA2_Stream3_IRQn 1 */
 
-  /* USER CODE END DMA2_Stream3_IRQn 1 */
 }
 
 /**
@@ -272,13 +244,9 @@ void DMA2_Stream3_IRQHandler(void)
   */
 void DMA2_Stream6_IRQHandler(void)
 {
-  /* USER CODE BEGIN DMA2_Stream6_IRQn 0 */
 
-  /* USER CODE END DMA2_Stream6_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_sdio_tx);
-  /* USER CODE BEGIN DMA2_Stream6_IRQn 1 */
 
-  /* USER CODE END DMA2_Stream6_IRQn 1 */
 }
 
 void USARTx_IRQHandler(void)

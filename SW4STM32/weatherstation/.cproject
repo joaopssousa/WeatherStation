@@ -116,9 +116,6 @@
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/batteryMonitor"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/ST/STM32_Secure_Engine/Core"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/LoRaWAN/Patterns/Basic"/>
-									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/LoRaWAN/Patterns/Advanced/LmHandler/packages"/>
-									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/LoRaWAN/Patterns/Advanced/LmHandler"/>
-									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/LoRaWAN/Patterns/Advanced"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/LoRaWAN/Mac/region"/>
 									<listOptionValue builtIn="false" value="../../../LoRaWAN/App/inc"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
@@ -131,15 +128,10 @@
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/LoRaWAN/Mac"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/LoRaWAN/Phy"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/LoRaWAN/Utilities"/>
-									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/X_NUCLEO_IKS01A1"/>
-									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/X_NUCLEO_IKS01A2"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/Common"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/FATFS/App"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/FATFS/Target"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/station"/>
-									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/hts221"/>
-									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/lps22hb"/>
-									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/lps25hb"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/sx1276"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/sx1276mb1mas"/>
 									<listOptionValue builtIn="false" value="../../../../../Projects/Bootloader/Linker_Common/SW4STM32"/>

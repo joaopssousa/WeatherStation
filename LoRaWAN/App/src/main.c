@@ -348,7 +348,7 @@ int main(void)
 	{
 		flag_pluv=0;
 		get_time_now((uint8_t*)&buffer_time);
-		if ((buffer_time[3] == 23) && (buffer_time[4] == 59) && buffer_time[5] > 40)
+		if ((buffer_time[3] == 23) && (buffer_time[4] == 59) && buffer_time[5] > 30)
 		{
 		  // Inicio de outro dia, zera-se o contador de precipitação.
 		  PLUVIOMETER_COUNT = 0;
@@ -388,12 +388,6 @@ int main(void)
     	AppProcessRequest = LORA_RESET;
     	Send(NULL);
     }
-
-    //Send battery voltage
-//    if (send_battery_voltage_flag == LORA_SET) {
-//		send_battery_voltage_flag = LORA_RESET;
-//		Send_Battery_Voltage(NULL);
-//	}
 
     if (LoraMacProcessRequest == LORA_SET)
     {
