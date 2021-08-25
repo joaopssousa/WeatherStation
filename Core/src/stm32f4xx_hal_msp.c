@@ -24,8 +24,7 @@
 #include "hw.h"
 #include "timeServer.h"
 /* USER CODE BEGIN Includes */
-extern uint16_t PLUVIOMETER_COUNT;
-extern uint32_t aux_count_velo;
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -541,6 +540,72 @@ void HAL_MspInit(void)
 }
 
 
+void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
+{
+	RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+	RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct = {0};
+
+	/*##-1- Configue the RTC clock soucre ######################################*/
+	/* -a- Enable LSE Oscillator */
+	RCC_OscInitStruct.OscillatorType =  RCC_OSCILLATORTYPE_LSI; //_LSE
+	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+	RCC_OscInitStruct.LSIState = RCC_LSI_ON; //.LSEState = LSE_ON
+	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
+	/* -b- Select LSI as RTC clock source */
+	PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+	PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;//LSE
+	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
+	/*##-2- Enable the RTC peripheral Clock ####################################*/
+	/* Enable RTC Clock */
+	__HAL_RCC_RTC_ENABLE();//RTCCLK
+
+	/*##-3- Configure the NVIC for RTC Alarm ###################################*/
+	HAL_NVIC_SetPriority(RTC_Alarm_IRQn, 0x0, 0);
+	HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn);
+
+//  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+//  RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct = {0};
+//
+//  /*##-1- Configue the RTC clock soucre ######################################*/
+//  /* -a- Enable LSE Oscillator */
+//  RCC_OscInitStruct.OscillatorType =  RCC_OSCILLATORTYPE_HSE; //_LSE
+//  RCC_OscInitStruct.LSEState = RCC_LSE_OFF;
+//  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+//  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+//  RCC_OscInitStruct.LSIState = RCC_LSI_ON; //.LSEState = LSE_ON
+//  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//
+//  /* -b- Select LSI as RTC clock source */
+//  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+//  PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_HSE_DIV8;//LSE
+//  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//
+//  /*##-2- Enable the RTC peripheral Clock ####################################*/
+//  /* Enable RTC Clock */
+//  __HAL_RCC_RTC_ENABLE();//RTCCLK
+//
+//  /*##-3- Configure the NVIC for RTC Alarm ###################################*/
+//  HAL_NVIC_SetPriority(RTC_Alarm_IRQn, 0x0, 0);
+//  HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn);
+}
+
+
+
+
 
 /**
   * @brief RTC MSP Initialization
@@ -553,37 +618,38 @@ void HAL_MspInit(void)
   *        the backup registers) and RCC_CSR register are set to their reset values.
   * @retval None
   */
-void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
-{
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct = {0};
-
-  /*##-1- Configue the RTC clock soucre ######################################*/
-  /* -a- Enable LSE Oscillator */
-  RCC_OscInitStruct.OscillatorType =  RCC_OSCILLATORTYPE_LSI; //_LSE
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-  RCC_OscInitStruct.LSIState = RCC_LSI_ON; //.LSEState = LSE_ON
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /* -b- Select LSI as RTC clock source */
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-  PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;//LSE
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /*##-2- Enable the RTC peripheral Clock ####################################*/
-  /* Enable RTC Clock */
-  __HAL_RCC_RTC_ENABLE();//RTCCLK
-
-  /*##-3- Configure the NVIC for RTC Alarm ###################################*/
-  HAL_NVIC_SetPriority(RTC_Alarm_IRQn, 0x0, 0);
-  HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn);
-}
+//void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
+//{
+//  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+//  RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct = {0};
+//
+//  /*##-1- Configue the RTC clock soucre ######################################*/
+//  /* -a- Enable LSE Oscillator */
+//  RCC_OscInitStruct.OscillatorType =  RCC_OSCILLATORTYPE_LSE; //_LSE
+//  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+//  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+//  //RCC_OscInitStruct.LSIState = RCC_LSI_ON; //.LSEState = LSE_ON
+//  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//
+//  /* -b- Select LSI as RTC clock source */
+//  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+//  PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;//LSE
+//  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//
+//  /*##-2- Enable the RTC peripheral Clock ####################################*/
+//  /* Enable RTC Clock */
+//  __HAL_RCC_RTC_ENABLE();//RTCCLK
+//
+//  /*##-3- Configure the NVIC for RTC Alarm ###################################*/
+//  HAL_NVIC_SetPriority(RTC_Alarm_IRQn, 0x0, 0);
+//  HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn);
+//}
 
 /**
   * @brief  Alarm A callback.

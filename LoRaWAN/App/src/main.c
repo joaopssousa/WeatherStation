@@ -33,7 +33,10 @@
 #include "battery_monitor.h"
 #include "fw_update_app.h"
 #include "com.h"
+#include "irradiator_sensor.h"
 
+
+#define MAX_MEASURES					5	// Quantidade de medidas do sensor de irradiação para calcular a media
 
 #define USED_POWER TX_POWER_0
 
@@ -62,8 +65,7 @@ char buffer_tag[50];
 /*!
  * Defines the application data transmission duty cycle. value in [ms].
  */
-#define APP_TX_DUTYCYCLE                            10000	// 5 min
-#define BATTERY_MONITOR_DUTYCYCLE					12000	// 7 min
+#define APP_TX_DUTYCYCLE                            60000	// 1 min
 
 /*!
  * LoRaWAN Adaptive Data Rate
@@ -108,13 +110,17 @@ char buffer_tag[50];
 /******************************** WeatherStation **********************************************/
 
 #define DATA_BUFF_SIZE                  64  // Tamanho do buffer de dados para envio
-uint16_t PLUVIOMETER_COUNT = 0; 			// Inicialização do contador do pluviometro
-
 
 uint8_t send_battery_voltage_flag = LORA_RESET;
 
 // User application data
 uint8_t AppDataBuff[DATA_BUFF_SIZE];
+
+double vbat;
+uint16_t vbat_int;
+
+uint32_t mediaIrradiator;
+
 
 // Estrutura do dados para envio
 Sensor_AppData AppData = { AppDataBuff, 0, 0 };
@@ -129,13 +135,6 @@ extern Estation_Parameters Parameters;
 
 static uint8_t LORA_GetBatteryLevel (void);
 
-
-/********************************** Battery ****************************************************/
-
-static void Send_Battery_Voltage(void *context);
-static void LoraStartBatteryMonitor(void);
-
-/***********************************************************************************************/
 
 
 /************************* SD CArd Function prototypes *****************************************/
@@ -190,13 +189,10 @@ static LoRaMainCallback_t LoRaMainCallbacks = { LORA_GetBatteryLevel,
                                               };
 LoraFlagStatus LoraMacProcessRequest = LORA_RESET;
 LoraFlagStatus AppProcessRequest = LORA_RESET;
-/*!
- * Specifies the state of the application LED
- */
-static uint8_t AppLedStateOn = RESET;
+
 
 static TimerEvent_t TxTimer;
-static TimerEvent_t battery_monitor_timer;
+
 
 /* !
  *Initialises the Lora Parameters
@@ -225,7 +221,7 @@ static void mount_sd_card(){
 	if(f_mount(&SDFatFS, (const TCHAR *)&SDPath, 1) != FR_OK)
 	  {
 		  // TODO Acionar flag ou alerta de ausencia de cartão ou erro de montagem
-		  PRINT_SD_CARD(PRINTF("Erro ao montar o cartao\r\n");)
+		  PRINT_SD_CARD(PRINTF("\r\nErro ao montar o cartao\r\n");)
 		 // Error_Handler();
 	  }
 }
@@ -238,7 +234,7 @@ static void REMOVE_and_OPENAGAIN(const char* arq){
 		f_unlink(arq);			// Depois apaga
 	}
 	else if(res == FR_NO_FILE){
-		return; 	// Não há nem arquivo existente com o nome informado
+		return; 	// Não há arquivo existente com o nome informado
 	}
 
 	if(f_open(&SDFile, arq, FA_OPEN_APPEND | FA_READ | FA_WRITE) != FR_OK)
@@ -314,7 +310,11 @@ int main(void)
 
   init_station();									/* Initialize WeatherStation Peripherals */
 
+  init_irradiator();								/* Initialize Irradiator sensor */
+
   init_battery_monitor();							/* Initialize Battery monitor */
+
+  HAL_TIM_Base_Start_IT(&htim3);
 
   mount_sd_card();									/* Mount and prepare SD Card */
 
@@ -335,23 +335,55 @@ int main(void)
 
   LoraStartTx(TX_ON_TIMER);
 
-//  LoraStartBatteryMonitor();
-
-  uint32_t prim; //tratar depois as interrupcoes
   uint8_t buffer_time[6];
+
   flags_ble.all_flags=0;
+  flagsStation.all_flags=0;
+
   while (1)
   {
 
+	if((flagsStation.receive_measure_irrad > 0) && (!flagsStation.active_irradiator)) {
+		PRINTF("Irradiador presente...\n");
+		flagsStation.active_irradiator = 1;
+	}
 
-	if (flag_pluv)
+	if(flagsStation.read_sensors)
 	{
-		flag_pluv=0;
+		flagsStation.read_sensors=0;
+		PRINTF("Leitura dos Sensores\r\n");
+		read_sensors(&Parameters);
+		PRINTF("Leitura da tensão da bateria\r\n");
+		vbat = get_battery_voltage();
+		vbat_int = (uint16_t)(double)(vbat*100);
+
+	}
+
+	if(flagsStation.receive_measure_irrad)
+	{
+		flagsStation.receive_measure_irrad=0;
+
+		measures += getIntMeasure();
+
+		count_measures++;
+
+		/* Calcula a media a cada 5 medidas do sensor de irradiacao */
+		if(count_measures == MAX_MEASURES) {
+			count_measures = 0;
+			mediaIrradiator = mediaCalculator(MAX_MEASURES);
+
+			PRINTF("Average of the last 5 measurements of the radiator:%.2f W/m2\n", mediaIrradiator);
+		}
+	}
+
+	if (flagsStation.pluviometer)
+	{
+		flagsStation.pluviometer=0;
 		get_time_now((uint8_t*)&buffer_time);
+		// Inicio de outro dia, zera-se o contador de precipitação.
 		if ((buffer_time[3] == 23) && (buffer_time[4] == 59) && buffer_time[5] > 30)
 		{
-		  // Inicio de outro dia, zera-se o contador de precipitação.
-		  PLUVIOMETER_COUNT = 0;
+			pluviometer_count = 0;
 		}
 	}
 
@@ -360,9 +392,9 @@ int main(void)
 		HAL_TIM_Base_Stop(&htim2);
 		ble_handler((uint8_t*)&message_ble);					// Aciona o handler para selecionar a mensagem de resposta.
 	}
-	if (flags_ble.update_mode){
 
-		prim = __get_PRIMASK();
+	if (flags_ble.update_mode){
+		__get_PRIMASK();
 
 		flags_ble.update_mode = RESET;
 
@@ -391,6 +423,7 @@ int main(void)
 
     if (LoraMacProcessRequest == LORA_SET)
     {
+    	PRINTF("LoraMacProcessRequest\r\n");
     	LoraMacProcessRequest = LORA_RESET;
     	LoRaMacProcess();
     }
@@ -424,72 +457,8 @@ static void LORA_HasJoined(void)
 }
 
 
-static void Send_Battery_Voltage(void *context) {
-
-//	double vbat;
-//	uint16_t vbat_int;
-//	vbat = get_battery_voltage();
-//	vbat_int = (uint16_t)(double)(vbat*100);
-//	AppData.Port = LORAWAN_APP_PORT;
-//
-//	get_time_now(AppData.Buff);
-//
-//	AppData.BuffSize = 8;
-//	AppData.Buff[6] = (vbat_int>>8)&0xFF;
-//	AppData.Buff[7] =  vbat_int&0xFF;
-//
-//	if (LORA_JoinStatus() != LORA_SET) {
-//		/*Not joined, try again later*/
-//		LORA_Join();
-//		return;
-//	}
-//
-//	TVL1(PRINTF("SEND Battery voltage\n\r");)
-//	LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
-
-	double vbat;
-	uint16_t vbat_int;
-	vbat = get_battery_voltage();
-	vbat_int = (uint16_t)(double)(vbat*100);
-
-	if (LORA_JoinStatus() != LORA_SET) {
-		/*Not joined, try again later*/
-		LORA_Join();
-		return;
-	}
-
-	TVL1(PRINTF("SEND REQUEST\n\r");)
-
-	get_time_now(AppData.Buff);
-
-	Sensores(&Parameters);
-
-	init_battery_monitor();							/* Initialize Battery monitor */
-	vbat = get_battery_voltage();
-	vbat_int = (uint16_t)(double)(vbat*100);
-
-	AppData.Port = LORAWAN_APP_PORT;
-
-	//muda_buffer(&AppData[6], Buffer_to_send);
-	memcpy(&(AppData.Buff[6]),Buffer_to_send,sizeof(Estation_Parameters));
-
-	AppData.Buff[19]= (vbat_int>>8)&0xFF;
-	AppData.Buff[20]= vbat_int&0xFF;
-
-	AppData.BuffSize = sizeof(Estation_Parameters)+8;
-
-	LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
-
-}
-
-
 static void Send(void *context) {
 
-	double vbat;
-	uint16_t vbat_int;
-	vbat = get_battery_voltage();
-	vbat_int = (uint16_t)(double)(vbat*100);
-
 	if (LORA_JoinStatus() != LORA_SET) {
 		/*Not joined, try again later*/
 		LORA_Join();
@@ -500,21 +469,19 @@ static void Send(void *context) {
 
 	get_time_now(AppData.Buff);
 
-	Sensores(&Parameters);
-
-	init_battery_monitor();							/* Initialize Battery monitor */
-	vbat = get_battery_voltage();
-	vbat_int = (uint16_t)(double)(vbat*100);
-
 	AppData.Port = LORAWAN_APP_PORT;
 
-	//muda_buffer(&AppData[6], Buffer_to_send);
 	memcpy(&(AppData.Buff[6]),Buffer_to_send,sizeof(Estation_Parameters));
 
 	AppData.Buff[19]= (vbat_int>>8)&0xFF;
 	AppData.Buff[20]= vbat_int&0xFF;
-
 	AppData.BuffSize = sizeof(Estation_Parameters)+8;
+
+	if(flagsStation.active_irradiator) {
+		AppData.BuffSize += 2;
+		AppData.Buff[21]= (mediaIrradiator>>8)&0xFF;
+		AppData.Buff[22]= mediaIrradiator&0xFF;
+	}
 
 	LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
 
@@ -528,71 +495,50 @@ static void LORA_RxData(lora_AppData_t *AppData)
 
   switch (AppData->Port)
   {
-    case 3:
-      /*this port switches the class*/
-      if (AppData->BuffSize == 1)
-      {
-        switch (AppData->Buff[0])
-        {
-          case CHANGE_TO_CLASS_A:
-          {
-            LORA_RequestClass(CLASS_A);
-            break;
-          }
-          case CHANGE_TO_CLASS_B:
-          {
-            LORA_RequestClass(CLASS_B);
-            break;
-          }
-          case CHANGE_TO_CLASS_C:
-          {
-            LORA_RequestClass(CLASS_C);
-            break;
-          }
-          default:
-            break;
-        }
-      }
-      break;
-    case LORAWAN_APP_PORT:
-    	//TODO Atualizar Data e Hora do dispositivo
+    case LORAWAN_CHANGE_CLASS_PORT:
+    	/*this port switches the class*/
 		if (AppData->BuffSize == 1)
 		{
-			AppLedStateOn = AppData->Buff[0] & 0x01;
-			if (AppLedStateOn == RESET)
-			{
-				PRINTF("LED OFF\n\r");
-				LED_Off(LED_BLUE) ;
-			}
-			else
-			{
-				PRINTF("LED ON\n\r");
-				LED_On(LED_BLUE) ;
-			}
+		switch (AppData->Buff[0])
+		{
+		  case CHANGE_TO_CLASS_A:
+		  {
+			LORA_RequestClass(CLASS_A);
+			break;
+		  }
+		  case CHANGE_TO_CLASS_B:
+		  {
+			LORA_RequestClass(CLASS_B);
+			break;
+		  }
+		  case CHANGE_TO_CLASS_C:
+		  {
+			LORA_RequestClass(CLASS_C);
+			break;
+		  }
+		  default:
+			break;
 		}
-      break;
+		}
+		break;
+    case LORAWAN_APP_PORT:
+    	//TODO Atualizar Data e Hora do dispositivo
+    	if(AppData->BuffSize == 7)
+    	{
+    		DateTime_Update(AppData->Buff);
+			PRINTF("DATE-TIME UPDATED \n\r");
+		}
+    	break;
     default:
-      break;
+    	break;
   }
 }
 
 static void OnTxTimerEvent(void *context)
 {
   /*Wait for next tx slot*/
-  TimerStart(&TxTimer);
-  AppProcessRequest = LORA_SET;
-}
-
-static void OnBatteryTimerEvent(void *context) {
-	/*Wait for next tx slot*/
-	TimerStart(&battery_monitor_timer);
-	send_battery_voltage_flag = LORA_SET;
-}
-
-static void LoraStartBatteryMonitor(void) {
-	TimerInit(&battery_monitor_timer, OnBatteryTimerEvent);
-	TimerSetValue(&TxTimer, BATTERY_MONITOR_DUTYCYCLE);
-	OnBatteryTimerEvent(NULL);
+	TimerStart(&TxTimer);
+	AppProcessRequest = LORA_SET;
 }
 
 static void LoraStartTx(TxEventType_t EventType)
@@ -635,10 +581,6 @@ static void LORA_TxNeeded(void)
 uint8_t LORA_GetBatteryLevel(void)
 {
   return 0xFF;
-}
-
-static uint8_t store_battery_voltage(void){
-	return 0;
 }
 
 static uint8_t store_weather_data(void){

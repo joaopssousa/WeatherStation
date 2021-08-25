@@ -133,6 +133,7 @@
 									<listOptionValue builtIn="false" value="../../../../../Drivers/FATFS/Target"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/station"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/sx1276"/>
+									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/irradiator_sensor"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/sx1276mb1mas"/>
 									<listOptionValue builtIn="false" value="../../../../../Projects/Bootloader/Linker_Common/SW4STM32"/>
 									<listOptionValue builtIn="false" value="../../../../../Projects/Bootloader/2_Images_SECoreBin/Inc"/>

@@ -173,9 +173,6 @@ void SysTick_Handler(void)
 void TIM2_IRQHandler(void)
 {
 
-//	count_velo = aux_count_velo;
-//	aux_count_velo = 0;
-
   HAL_TIM_IRQHandler(&htim2);
 
 }
@@ -216,6 +213,16 @@ void USART1_IRQHandler(void)
 	HAL_NVIC_ClearPendingIRQ(USART1_IRQn);
 	HAL_UART_Abort_IT(&huart1);
 	HAL_UART_Receive_IT(&huart1, rx_byte_uart1, 1);
+
+}
+
+/**
+  * @brief This function handles USART2 global interrupt.
+  */
+void USART2_IRQHandler(void)
+{
+
+  HAL_UART_IRQHandler(&huart2);
 
 }
 

@@ -162,7 +162,7 @@ extern "C" {
 
 
 #define USARTx                           USART3
-#define USARTx_CLK_ENABLE()              __HAL_RCC_USART3_CLK_ENABLE();//__USART3_CLK_ENABLE();
+#define USARTx_CLK_ENABLE()              __HAL_RCC_USART3_CLK_ENABLE();
 #define USARTx_RX_GPIO_CLK_ENABLE()      __GPIOB_CLK_ENABLE()
 #define USARTx_TX_GPIO_CLK_ENABLE()      __GPIOB_CLK_ENABLE()
 #define DMAx_CLK_ENABLE()                __HAL_RCC_DMA1_CLK_ENABLE()

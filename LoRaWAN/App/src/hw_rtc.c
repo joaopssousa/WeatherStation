@@ -58,10 +58,10 @@ typedef struct
 #define N_PREDIV_S                 10
 
 /* Synchonuous prediv  */
-#define PREDIV_S                  ((1<<N_PREDIV_S)-1) //1023
+#define PREDIV_S                  ((1<<N_PREDIV_S)-1) //1023 //hse 7999
 
 /* Asynchonuous prediv   */
-#define PREDIV_A                  (1<<(15-N_PREDIV_S))-1 //31
+#define PREDIV_A                  (1<<(15-N_PREDIV_S))-1 //31 //hse 124
 
 /* Sub-second mask definition  */
 #define HW_RTC_ALARMSUBSECONDMASK (N_PREDIV_S<<RTC_ALRMASSR_MASKSS_Pos)
@@ -180,29 +180,64 @@ static void HW_RTC_SetConfig(void)
 
   HAL_RTC_Init(&RtcHandle);
 
-  /*Monday 1st January 2016*/
-  RTC_DateStruct.Year = 21;
-  RTC_DateStruct.Month = RTC_MONTH_AUGUST;
-  RTC_DateStruct.Date = 7;
-  RTC_DateStruct.WeekDay = RTC_WEEKDAY_SATURDAY;
-  HAL_RTC_SetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN);
+  if(HAL_RTCEx_BKUPRead(&RtcHandle, RTC_BKP_DR2) != 0x32F2) {
+	  /*Monday 1st January 2016*/
+	  RTC_DateStruct.Year = 21;
+	  RTC_DateStruct.Month = RTC_MONTH_AUGUST;
+	  RTC_DateStruct.Date = 7;
+	  RTC_DateStruct.WeekDay = RTC_WEEKDAY_SATURDAY;
+	  HAL_RTC_SetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN);
 
-  /*at 0:0:0*/
-  RTC_TimeStruct.Hours = 12;
-  RTC_TimeStruct.Minutes = 20;
+	  /*at 0:0:0*/
+	  RTC_TimeStruct.Hours = 12;
+	  RTC_TimeStruct.Minutes = 20;
 
-  RTC_TimeStruct.Seconds = 0;
-  RTC_TimeStruct.TimeFormat = 0;
-  RTC_TimeStruct.SubSeconds = 0;
-  RTC_TimeStruct.StoreOperation = RTC_DAYLIGHTSAVING_NONE;
-  RTC_TimeStruct.DayLightSaving = RTC_STOREOPERATION_RESET;
+	  RTC_TimeStruct.Seconds = 0;
+	  RTC_TimeStruct.TimeFormat = 0;
+	  RTC_TimeStruct.SubSeconds = 0;
+	  RTC_TimeStruct.StoreOperation = RTC_DAYLIGHTSAVING_NONE;
+	  RTC_TimeStruct.DayLightSaving = RTC_STOREOPERATION_RESET;
 
-  HAL_RTC_SetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
+	  HAL_RTC_SetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
 
-  /*Enable Direct Read of the calendar registers (not through Shadow) */
-  HAL_RTCEx_EnableBypassShadow(&RtcHandle);
+	  /*Enable Direct Read of the calendar registers (not through Shadow) */
+	  HAL_RTCEx_EnableBypassShadow(&RtcHandle);
+	 // HAL_RTCEx_SetSmoothCalib(&RtcHandle, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 100);
+	  HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR2, 0x32F2);
+  }
 }
 
+/*!
+ * @brief Update the RTC timer from RxData
+ * @note The timer is based on the RTC
+ * @param buffer_datetime_real	RxData buffer
+ * @retval none
+ */
+void DateTime_Update(uint8_t* buffer_datetime_real) {
+	RTC_TimeTypeDef RTC_TimeStruct_Real;
+	RTC_DateTypeDef RTC_DateStruct_Real;
+
+	// [Wd, Mo, D, Y, H, M, S]
+
+	RTC_DateStruct_Real.Year = buffer_datetime_real[3]; // 0-infinite
+	RTC_DateStruct_Real.Month = buffer_datetime_real[1]; // 0-12
+	RTC_DateStruct_Real.Date = buffer_datetime_real[2]; // 1-31
+	RTC_DateStruct_Real.WeekDay = buffer_datetime_real[0]; // Seg 1 ... Dom 7
+	HAL_RTC_SetDate(&RtcHandle, &RTC_DateStruct_Real, RTC_FORMAT_BIN);
+
+	/*at 0:0:0*/
+	RTC_TimeStruct_Real.Hours = buffer_datetime_real[4]; // 0-23
+	RTC_TimeStruct_Real.Minutes = buffer_datetime_real[5]; // 0-59
+	RTC_TimeStruct_Real.Seconds = buffer_datetime_real[6]; // 0-59
+	RTC_TimeStruct_Real.TimeFormat = 0;
+	RTC_TimeStruct_Real.SubSeconds = 0;
+	RTC_TimeStruct_Real.StoreOperation = RTC_DAYLIGHTSAVING_NONE;
+	RTC_TimeStruct_Real.DayLightSaving = RTC_STOREOPERATION_RESET;
+	HAL_RTC_SetTime(&RtcHandle, &RTC_TimeStruct_Real, RTC_FORMAT_BIN);
+
+	HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR2, 0x32F2);
+
+}
 
 /*!
  * @brief calculates the wake up time between wake up and mcu start
