@@ -34,6 +34,7 @@
 #include "main.h"
 #include "com.h"
 #include "util_console.h"
+#include "hw_msp.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -77,6 +78,7 @@ static HAL_StatusTypeDef ReceivePacket(uint8_t *pData, uint32_t *puLength, uint3
   /* If the SecureBoot configured the IWDG, UserApp must reload IWDG counter with value defined in the
      reload register */
   WRITE_REG(IWDG->KR, IWDG_KEY_RELOAD);
+  refresh_iwdg();
 
   status = (HAL_StatusTypeDef)COM_Receive(&char1, 1, uTimeout);
 
@@ -256,7 +258,7 @@ COM_StatusTypeDef Ymodem_Receive(uint32_t *puSize, uint32_t uFlashDestination, Y
   uint8_t tmp;
   uint32_t packets_received;
   COM_StatusTypeDef e_result = COM_OK;
-
+  refresh_iwdg();
   while ((session_done == 0U) && (e_result == COM_OK))
   {
     packets_received = 0U;

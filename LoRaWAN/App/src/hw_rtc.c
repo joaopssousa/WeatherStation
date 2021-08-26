@@ -182,14 +182,14 @@ static void HW_RTC_SetConfig(void)
 
   /*Monday 1st January 2016*/
   RTC_DateStruct.Year = 21;
-  RTC_DateStruct.Month = RTC_MONTH_JUNE;
-  RTC_DateStruct.Date = 24;
+  RTC_DateStruct.Month = RTC_MONTH_AUGUST;
+  RTC_DateStruct.Date = 26;
   RTC_DateStruct.WeekDay = RTC_WEEKDAY_MONDAY;
   HAL_RTC_SetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN);
 
   /*at 0:0:0*/
-  RTC_TimeStruct.Hours = 23;
-  RTC_TimeStruct.Minutes = 53;
+  RTC_TimeStruct.Hours = 17;
+  RTC_TimeStruct.Minutes = 00;
 
   RTC_TimeStruct.Seconds = 0;
   RTC_TimeStruct.TimeFormat = 0;
@@ -685,6 +685,38 @@ void get_time_now (uint8_t* buffer_datetime)
 	{
     	buffer_datetime[i]=*p++;
 	}
+}
+
+/*!
+ * @brief Update the RTC timer from RxData
+ * @note The timer is based on the RTC
+ * @param buffer_datetime_real	RxData buffer
+ * @retval none
+ */
+void DateTime_Update(uint8_t* buffer_datetime_real) {
+	RTC_TimeTypeDef RTC_TimeStruct_Real;
+	RTC_DateTypeDef RTC_DateStruct_Real;
+
+	// [Wd, Mo, D, Y, H, M, S]
+
+	RTC_DateStruct_Real.Year = buffer_datetime_real[3]; // 0-infinite
+	RTC_DateStruct_Real.Month = buffer_datetime_real[1]; // 0-12
+	RTC_DateStruct_Real.Date = buffer_datetime_real[2]; // 1-31
+	RTC_DateStruct_Real.WeekDay = buffer_datetime_real[0]; // Seg 1 ... Dom 7
+	HAL_RTC_SetDate(&RtcHandle, &RTC_DateStruct_Real, RTC_FORMAT_BIN);
+
+	/*at 0:0:0*/
+	RTC_TimeStruct_Real.Hours = buffer_datetime_real[4]; // 0-23
+	RTC_TimeStruct_Real.Minutes = buffer_datetime_real[5]; // 0-59
+	RTC_TimeStruct_Real.Seconds = buffer_datetime_real[6]; // 0-59
+	RTC_TimeStruct_Real.TimeFormat = 0;
+	RTC_TimeStruct_Real.SubSeconds = 0;
+	RTC_TimeStruct_Real.StoreOperation = RTC_DAYLIGHTSAVING_NONE;
+	RTC_TimeStruct_Real.DayLightSaving = RTC_STOREOPERATION_RESET;
+	HAL_RTC_SetTime(&RtcHandle, &RTC_TimeStruct_Real, RTC_FORMAT_BIN);
+
+	HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR2, 0x32F2);
+
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

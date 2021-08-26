@@ -67,6 +67,10 @@ extern "C" {
  */
 #define RTC_TEMP_DEV_TURNOVER                           ( 5.0 )
 
+
+void DateTime_Update(uint8_t* buffer_datetime_real) ;
+
+
 /*!
  * @brief Get date and time in buffer format
  * @param The buffer to be filled with date and time

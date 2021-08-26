@@ -38,6 +38,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "vcom.h"
 #include "stm32f4xx_hal_adc.h"
 #include "stm32f4xx_hal_rcc_ex.h"
+#include "stm32f4xx_hal_iwdg.h"
 #include "ble.h"
 #include "com.h"
 
@@ -81,6 +82,8 @@ ADC_HandleTypeDef hadc;
 
 ADC_HandleTypeDef hadc2;
 
+IWDG_HandleTypeDef hiwdg;
+
 /*!
  * Flag to indicate if the ADC is Initialized
  */
@@ -90,6 +93,8 @@ static bool AdcInitialized = false;
  * Flag to indicate if the MCU is Initialized
  */
 static bool McuInitialized = false;
+
+static void MX_IWDG_Init(void);
 
 /**
   * @brief This function initializes the hardware
@@ -127,6 +132,8 @@ void HW_Init(void)
 
     MX_TIM2_Init();
 
+    MX_TIM3_Init();
+
     MX_SDIO_SD_Init();
     MX_FATFS_Init();
 
@@ -134,6 +141,8 @@ void HW_Init(void)
     HAL_TIM_Base_Start_IT(&htim2);
 
     HAL_UART_Receive_IT(&huart1, rx_byte_uart1, 1);
+
+    MX_IWDG_Init();
 
     McuInitialized = true;
   }
@@ -633,6 +642,39 @@ void LPM_EnterSleepMode(void)
 {
   HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 }
+
+/**
+  * @brief IWDG Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_IWDG_Init(void)
+{
+
+  /* USER CODE BEGIN IWDG_Init 0 */
+
+  /* USER CODE END IWDG_Init 0 */
+
+  /* USER CODE BEGIN IWDG_Init 1 */
+
+  /* USER CODE END IWDG_Init 1 */
+  hiwdg.Instance = IWDG;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_64;
+  hiwdg.Init.Reload = 2499;
+  if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN IWDG_Init 2 */
+
+  /* USER CODE END IWDG_Init 2 */
+
+}
+
+void refresh_iwdg(void){
+	HAL_IWDG_Refresh(&hiwdg);
+}
+
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

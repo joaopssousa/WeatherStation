@@ -97,11 +97,13 @@ void FW_UPDATE_Run(void)
 
   /* Print Firmware Update welcome message */
   PRINTF("\r\n================ New Fw Download =========================\r\n\n");
-
+  refresh_iwdg();
   /* Get Info about the download area */
   SFU_APP_GetDownloadAreaInfo(SLOT_DWL_1, &fw_image_dwl_area);
 
   /* Download new firmware image*/
+
+  refresh_iwdg();
   ret = FW_UPDATE_DownloadNewFirmware(&fw_image_dwl_area);
 
   if (HAL_OK == ret)
@@ -297,13 +299,15 @@ static HAL_StatusTypeDef FW_UPDATE_DownloadNewFirmware(SFU_FwImageFlashTypeDef *
   /* Refresh Watchdog */
   WRITE_REG(IWDG->KR, IWDG_KEY_RELOAD);
 
+  refresh_iwdg();
+
   /* Clear download area */
   PRINTF("  -- -- Erasing download area ...\r\n\n");
   if ((ret = FLASH_If_Erase_Size((void *)(pFwImageDwlArea->DownloadAddr), pFwImageDwlArea->MaxSizeInBytes)) == HAL_OK)
   {
     /* Download binary */
 	  PRINTF("  -- -- File> Transfer> YMODEM> Send ");
-
+	 refresh_iwdg();
     /*Init of Ymodem*/
     Ymodem_Init();
 

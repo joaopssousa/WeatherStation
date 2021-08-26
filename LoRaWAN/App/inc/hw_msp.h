@@ -95,6 +95,13 @@ uint16_t HW_GetTemperatureLevel(void);
  * \retval value  battery level ( 0: very low, 254: fully charged )
  */
 uint16_t HW_GetBatteryLevel(void);
+
+/*!
+ * \brief Refresh WDG.
+ */
+void refresh_iwdg(void);
+
+
 /*!
  * \brief Initializes the boards peripherals.
  */
