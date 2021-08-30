@@ -33,6 +33,7 @@
 #include "battery_monitor.h"
 #include "fw_update_app.h"
 #include "com.h"
+#include "irradiator_sensor.h"
 
 
 #define USED_POWER TX_POWER_0
@@ -124,6 +125,8 @@ char Buffer_to_send[sizeof(Estation_Parameters)] = { 0 };
 
 // Retorno dos parametros definidos em station.h
 extern Estation_Parameters Parameters;
+
+uint32_t mean = 0;
 
 /***********************************************************************************************/
 
@@ -315,19 +318,23 @@ int main(void)
 
   HW_Init();										/* Configure the hardware*/
 
-  refresh_iwdg();
+  //refresh_iwdg();
 
   init_station();									/* Initialize WeatherStation Peripherals */
 
-  refresh_iwdg();
+  //refresh_iwdg();
+
+  init_irradiator();
+
+  //refresh_iwdg();
 
   init_battery_monitor();							/* Initialize Battery monitor */
 
-  refresh_iwdg();
+  //refresh_iwdg();
 
   mount_sd_card();									/* Mount and prepare SD Card */
 
-  refresh_iwdg();
+  //refresh_iwdg();
 
   LPM_SetOffMode(LPM_APPLI_Id, LPM_Disable);		/* Disable Stand-by mode */
 
@@ -339,14 +346,14 @@ int main(void)
 			(uint8_t)(__LORA_MAC_VERSION >> 16),
 			(uint8_t)(__LORA_MAC_VERSION >> 8), (uint8_t)__LORA_MAC_VERSION);
 
-  refresh_iwdg();
+  //refresh_iwdg();
 
   LORA_Init(&LoRaMainCallbacks, &LoRaParamInit);	/* Configure the Lora Stack*/
 
-  refresh_iwdg();
+  //refresh_iwdg();
   LORA_Join();
 
-  refresh_iwdg();
+  //refresh_iwdg();
   LoraStartTx(TX_ON_TIMER);
 
   HAL_TIM_Base_Start_IT(&htim3);
@@ -361,7 +368,7 @@ int main(void)
   while (1)
   {
 
-	refresh_iwdg();
+	//refresh_iwdg();
 
 
 	if (flagsStation.pluviometer)
@@ -380,34 +387,59 @@ int main(void)
 	{
 		flagsStation.read_sensors=0;
 		PRINTF("Leitura dos Sensores\r\n");
-		refresh_iwdg();
+		//refresh_iwdg();
 		read_sensors(&Parameters);
-		refresh_iwdg();
+		//refresh_iwdg();
 		PRINTF("Leitura da tensão da bateria\r\n");
 		vbat = get_battery_voltage();
-		refresh_iwdg();
+		//refresh_iwdg();
 		vbat_int = (uint16_t)(double)(vbat*100);
 
+	}
+
+	//refresh_iwdg();
+
+	if(count_measures == 1 && flagsStation.active_irradiator == 0) {
+		//refresh_iwdg();
+		PRINTF("Irradiador transmitindo...\r\n");
+		flagsStation.active_irradiator = 1;
+		//refresh_iwdg();
+	}
+
+	if(flagsStation.receive_measure_irrad == 1) {
+		flagsStation.receive_measure_irrad = 0;
+
+		//refresh_iwdg();
+		measures += getIntMeasure();
+		count_measures++;
+		//refresh_iwdg();
+
+		if(count_measures == 5) {
+			count_measures = 0;
+			mean = mediaCalculator(5);
+			PRINTF("Average of the last 5 measurements of the radiator:%ld W/m2\n", mean);
+		}
+		//refresh_iwdg();
 	}
 
 	if (flags_ble.enable_handler){
 		flags_ble.enable_handler = 0;
 		HAL_TIM_Base_Stop(&htim2);
 		HAL_TIM_Base_Stop(&htim3);
-		refresh_iwdg();
+		//refresh_iwdg();
 		ble_handler((uint8_t*)&message_ble);					// Aciona o handler para selecionar a mensagem de resposta.
-		refresh_iwdg();
+		//refresh_iwdg();
 		HAL_TIM_Base_Start(&htim2);
 		HAL_TIM_Base_Start(&htim3);
 	}
 
 	if (flags_ble.update_mode==SET){
 			PRINTF("Update mode \r\n");
-			refresh_iwdg();
+			//refresh_iwdg();
 			prim = __get_PRIMASK();
 
 			flags_ble.update_mode = RESET;
-			refresh_iwdg();
+			//refresh_iwdg();
 			//Clear Usart to receive new firmware
 			HAL_NVIC_DisableIRQ(USART1_IRQn);
 			HAL_UART_AbortReceive_IT(&huart1);
@@ -421,13 +453,13 @@ int main(void)
 			//Enter in Update Mode
 			refresh_iwdg();
 			FW_UPDATE_Run();
-			refresh_iwdg();
+			//refresh_iwdg();
 			HAL_TIM_Base_Start(&htim2);
 			HAL_TIM_Base_Start(&htim3);
 			//ReEnable Ble Interrupts
 			MX_USART1_UART_Init();
 			HAL_UART_Receive_IT(&huart1, rx_byte_uart1, 1);
-			refresh_iwdg();
+			//refresh_iwdg();
 	}
 
 	//Send WeatherStation Data
@@ -435,10 +467,10 @@ int main(void)
     {
     	HAL_TIM_Base_Stop(&htim3);
     	HAL_TIM_Base_Stop(&htim2);
-    	refresh_iwdg();
+    	//refresh_iwdg();
     	AppProcessRequest = LORA_RESET;
     	Send(NULL);
-    	refresh_iwdg();
+    	//refresh_iwdg();
     	HAL_TIM_Base_Start(&htim2);
     	HAL_TIM_Base_Start(&htim3);
     }
@@ -451,10 +483,10 @@ int main(void)
 
     if (LoraMacProcessRequest == LORA_SET)
     {
-    	refresh_iwdg();
+    	//refresh_iwdg();
     	LoraMacProcessRequest = LORA_RESET;
     	LoRaMacProcess();
-    	refresh_iwdg();
+    	//refresh_iwdg();
     }
     //If a flag is set at this point, mcu must not enter low power and must loop
     //DISABLE_IRQ();
@@ -563,20 +595,27 @@ static void Send(void *context) {
 	get_time_now(AppData.Buff);
 
 	//Sensores(&Parameters);
-	//read_sensors(&Parameters);
-	//init_battery_monitor();							/* Initialize Battery monitor */
-	//vbat = get_battery_voltage();
-	//vbat_int = (uint16_t)(double)(vbat*100);
+//	read_sensors(&Parameters);
+//	init_battery_monitor();							/* Initialize Battery monitor */
+//	vbat = get_battery_voltage();
+//	vbat_int = (uint16_t)(double)(vbat*100);
 
 	AppData.Port = LORAWAN_APP_PORT;
 
 	//muda_buffer(&AppData[6], Buffer_to_send);
 	memcpy(&(AppData.Buff[6]),Buffer_to_send,sizeof(Estation_Parameters));
 
+
 	AppData.Buff[19]= (vbat_int>>8)&0xFF;
 	AppData.Buff[20]= vbat_int&0xFF;
 
 	AppData.BuffSize = sizeof(Estation_Parameters)+8;
+
+	if(flagsStation.active_irradiator == 1) {
+		AppData.Buff[21]= (mean>>8);
+		AppData.Buff[22]= mean;
+		AppData.BuffSize += 2;
+	}
 
 	LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
 

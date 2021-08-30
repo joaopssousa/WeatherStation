@@ -137,6 +137,7 @@
 									<listOptionValue builtIn="false" value="../../../../../Drivers/FATFS/App"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/FATFS/Target"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/station"/>
+									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/irradiator_sensor"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/hts221"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/lps22hb"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/lps25hb"/>

@@ -239,6 +239,11 @@ void USART1_IRQHandler(void)
 
 }
 
+void USART2_IRQHandler(void) {
+
+	HAL_UART_IRQHandler(&huart2);
+}
+
 /**
   * @brief This function handles SDIO global interrupt.
   */

@@ -142,7 +142,7 @@ void HW_Init(void)
 
     HAL_UART_Receive_IT(&huart1, rx_byte_uart1, 1);
 
-    MX_IWDG_Init();
+    //MX_IWDG_Init();
 
     McuInitialized = true;
   }
@@ -308,9 +308,11 @@ void SystemClock_Config(void)
 	/** Initializes the RCC Oscillators according to the specified parameterstraduto
 	 * in the RCC_OscInitTypeDef structure.
 	 */
-	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_LSI;
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI
+            |RCC_OSCILLATORTYPE_HSE;
 	RCC_OscInitStruct.HSIState = RCC_HSI_ON;
 	RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+	RCC_OscInitStruct.HSEState = RCC_HSE_ON;
 	RCC_OscInitStruct.LSIState = RCC_LSI_ON;
 	//RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
 
@@ -338,7 +340,7 @@ void SystemClock_Config(void)
 		Error_Handler();
 	}
 	PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-	PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+	PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_HSE_DIV8;
 
 	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
 		Error_Handler();

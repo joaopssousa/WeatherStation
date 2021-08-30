@@ -347,6 +347,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/station/bmp280.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/Components/irradiator_sensor.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/irradiator_sensor/irradiator_sensor.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/Components/radio.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/sx126x/radio.c</locationURI>

@@ -58,10 +58,10 @@ typedef struct
 #define N_PREDIV_S                 10
 
 /* Synchonuous prediv  */
-#define PREDIV_S                  ((1<<N_PREDIV_S)-1) //1023
+#define PREDIV_S                  7999//((1<<N_PREDIV_S)-1) //1023
 
 /* Asynchonuous prediv   */
-#define PREDIV_A                  (1<<(15-N_PREDIV_S))-1 //31
+#define PREDIV_A                  124//(1<<(15-N_PREDIV_S))-1 //31
 
 /* Sub-second mask definition  */
 #define HW_RTC_ALARMSUBSECONDMASK (N_PREDIV_S<<RTC_ALRMASSR_MASKSS_Pos)
