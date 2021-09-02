@@ -142,7 +142,7 @@ void HW_Init(void)
 
     HAL_UART_Receive_IT(&huart1, rx_byte_uart1, 1);
 
-    //MX_IWDG_Init();
+    MX_IWDG_Init();
 
     McuInitialized = true;
   }

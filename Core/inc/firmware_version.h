@@ -14,6 +14,11 @@
 * Eletrificador 0x04
 */
 
+#define WEATHERSTATION 0x01
+#define CURRAL 0x02
+#define PORTAL 0x03
+#define ELETRIFICADOR 0x04
+
 #define DEVICE_TYPE 0x01
 
 #endif
