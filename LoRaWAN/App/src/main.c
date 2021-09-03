@@ -421,7 +421,7 @@ int main(void)
 		if(count_measures == 5) {
 			count_measures = 0;
 			mean = mediaCalculator(5);
-			PRINTF("Average of the last 5 measurements of the radiator:%ld W/m2\n", mean);
+			PRINTF("Average of the last 5 measurements of the radiator:%ld W/m2\r\n", mean);
 		}
 		refresh_iwdg();
 	}

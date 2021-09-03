@@ -45,6 +45,7 @@ extern int b;
 extern DMA_HandleTypeDef hdma_sdio_rx;
 extern DMA_HandleTypeDef hdma_sdio_tx;
 extern SD_HandleTypeDef hsd;
+extern RTC_HandleTypeDef RtcHandle;
 
 extern unsigned char flag_connection;
 

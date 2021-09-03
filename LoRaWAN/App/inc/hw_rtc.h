@@ -86,6 +86,8 @@ void get_time_now (uint8_t* buffer_datetime);
  */
 void HW_RTC_Init(void);
 
+void RTC_AlarmConfig(void);
+
 /*!
  * @brief Stop the Alarm
  * @param none

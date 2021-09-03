@@ -246,7 +246,7 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* hrtc)
     /* Peripheral clock disable */
     __HAL_RCC_RTC_DISABLE();
   /* USER CODE BEGIN RTC_MspDeInit 1 */
-
+    HAL_NVIC_DisableIRQ(RTC_Alarm_IRQn);
   /* USER CODE END RTC_MspDeInit 1 */
   }
 

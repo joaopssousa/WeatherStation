@@ -151,6 +151,7 @@ void HW_RTC_Init(void)
   if (HW_RTC_Initalized == false)
   {
     HW_RTC_SetConfig();
+    //RTC_AlarmConfig();
     //HW_RTC_SetAlarmConfig();
     HW_RTC_SetTimerContext();
     HW_RTC_Initalized = true;
@@ -182,14 +183,14 @@ static void HW_RTC_SetConfig(void)
 
   /*Monday 1st January 2016*/
   RTC_DateStruct.Year = 21;
-  RTC_DateStruct.Month = RTC_MONTH_AUGUST;
-  RTC_DateStruct.Date = 26;
-  RTC_DateStruct.WeekDay = RTC_WEEKDAY_MONDAY;
+  RTC_DateStruct.Month = RTC_MONTH_SEPTEMBER;
+  RTC_DateStruct.Date = 3;
+  RTC_DateStruct.WeekDay = RTC_WEEKDAY_FRIDAY;
   HAL_RTC_SetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN);
 
   /*at 0:0:0*/
   RTC_TimeStruct.Hours = 17;
-  RTC_TimeStruct.Minutes = 00;
+  RTC_TimeStruct.Minutes = 50;
 
   RTC_TimeStruct.Seconds = 0;
   RTC_TimeStruct.TimeFormat = 0;
@@ -201,8 +202,31 @@ static void HW_RTC_SetConfig(void)
 
   /*Enable Direct Read of the calendar registers (not through Shadow) */
   HAL_RTCEx_EnableBypassShadow(&RtcHandle);
+  HAL_RTCEx_SetSmoothCalib(&RtcHandle, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 100);
 }
 
+void RTC_AlarmConfig(void){
+	RTC_AlarmTypeDef RTC_AlarmStructure2 = {0};
+
+	RTC_AlarmStructure2.AlarmTime.Hours = 18;
+	RTC_AlarmStructure2.AlarmTime.Minutes = 0;
+	RTC_AlarmStructure2.AlarmTime.Seconds = 0;
+	//RTC_AlarmStructure.AlarmTime.SubSeconds = 0;
+	RTC_AlarmStructure2.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+	RTC_AlarmStructure2.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
+	//RTC_AlarmStructure.AlarmMask = RTC_ALARMMASK_NONE;
+	//RTC_AlarmStructure.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
+	RTC_AlarmStructure2.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
+	RTC_AlarmStructure2.AlarmDateWeekDay = 3;
+	RTC_AlarmStructure2.Alarm = RTC_ALARM_B;
+	HAL_RTC_SetAlarm_IT(&RtcHandle, &RTC_AlarmStructure2, RTC_FORMAT_BIN);
+
+	//HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, 10, RTC_WAKEUPCLOCK_CK_SPRE_16BITS);
+}
+
+void HAL_RTCEx_AlarmBEventCallback(RTC_HandleTypeDef *hrtc) {
+	PRINTF("!!!!!!!!!!!!!! ALARM B !!!!!!!!!!!!!!\r\n");
+}
 
 /*!
  * @brief calculates the wake up time between wake up and mcu start
