@@ -116,7 +116,7 @@ static const uint8_t DaysInMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 3
  */
 static const uint8_t DaysInMonthLeapYear[] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-static RTC_HandleTypeDef RtcHandle = {0};
+RTC_HandleTypeDef RtcHandle = {0};//static RTC_HandleTypeDef RtcHandle = {0};
 
 static RTC_AlarmTypeDef RTC_AlarmStructure;
 
@@ -126,6 +126,9 @@ static RTC_AlarmTypeDef RTC_AlarmStructure;
  * Value is kept as a Reference to calculate alarm
  */
 static RtcTimerContext_t RtcTimerContext;
+
+static int16_t intervalTime = 15;
+static uint8_t flag_alarm = 1;
 
 /* Private function prototypes -----------------------------------------------*/
 
@@ -151,7 +154,7 @@ void HW_RTC_Init(void)
   if (HW_RTC_Initalized == false)
   {
     HW_RTC_SetConfig();
-    //RTC_AlarmConfig();
+    RTC_AlarmConfig(intervalTime);
     //HW_RTC_SetAlarmConfig();
     HW_RTC_SetTimerContext();
     HW_RTC_Initalized = true;
@@ -190,7 +193,7 @@ static void HW_RTC_SetConfig(void)
 
   /*at 0:0:0*/
   RTC_TimeStruct.Hours = 17;
-  RTC_TimeStruct.Minutes = 50;
+  RTC_TimeStruct.Minutes = 44;
 
   RTC_TimeStruct.Seconds = 0;
   RTC_TimeStruct.TimeFormat = 0;
@@ -205,12 +208,16 @@ static void HW_RTC_SetConfig(void)
   HAL_RTCEx_SetSmoothCalib(&RtcHandle, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 100);
 }
 
-void RTC_AlarmConfig(void){
+void RTC_AlarmConfig(uint8_t intervalo_seg){ // 30
+	//uint8_t hour, uint8_t minutes, uint8_t seconds
+	//RTC_DateTypeDef *RTC_DateStruct, RTC_TimeTypeDef *RTC_TimeStruct
 	RTC_AlarmTypeDef RTC_AlarmStructure2 = {0};
 
-	RTC_AlarmStructure2.AlarmTime.Hours = 18;
-	RTC_AlarmStructure2.AlarmTime.Minutes = 0;
-	RTC_AlarmStructure2.AlarmTime.Seconds = 0;
+	//HAL_RTC_GetTime(&RtcHandle, RTC_TimeStruct, RTC_FORMAT_BIN);
+
+	RTC_AlarmStructure2.AlarmTime.Hours = 17;
+	RTC_AlarmStructure2.AlarmTime.Minutes = 44;
+	RTC_AlarmStructure2.AlarmTime.Seconds = 0 + intervalo_seg;
 	//RTC_AlarmStructure.AlarmTime.SubSeconds = 0;
 	RTC_AlarmStructure2.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
 	RTC_AlarmStructure2.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
@@ -221,16 +228,17 @@ void RTC_AlarmConfig(void){
 	RTC_AlarmStructure2.Alarm = RTC_ALARM_B;
 	HAL_RTC_SetAlarm_IT(&RtcHandle, &RTC_AlarmStructure2, RTC_FORMAT_BIN);
 
-	//HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, 10, RTC_WAKEUPCLOCK_CK_SPRE_16BITS);
 }
 
 void HAL_RTCEx_AlarmBEventCallback(RTC_HandleTypeDef *hrtc) {
 	PRINTF("!!!!!!!!!!!!!! ALARM B !!!!!!!!!!!!!!\r\n");
+	flag_alarm++;
+	RTC_AlarmConfig(flag_alarm*intervalTime);
 }
 
 /*!
  * @brief calculates the wake up time between wake up and mcu start
- * @note resulotion in RTC_ALARM_TIME_BASE in timer ticks
+ * @note resolution in RTC_ALARM_TIME_BASE in timer ticks
  * @param none
  * @retval none
  */
@@ -368,6 +376,7 @@ void HW_RTC_StopAlarm(void)
   HAL_RTC_DeactivateAlarm(&RtcHandle, RTC_ALARM_A);
   /* Clear RTC Alarm Flag */
   __HAL_RTC_ALARM_CLEAR_FLAG(&RtcHandle, RTC_FLAG_ALRAF);
+
   /* Clear the EXTI's line Flag for RTC Alarm */
   __HAL_RTC_ALARM_EXTI_CLEAR_FLAG();
 }
@@ -398,6 +407,20 @@ void HW_RTC_IrqHandler(void)
       HAL_RTC_AlarmAEventCallback(hrtc);
     }
   }
+
+  /* Get the AlarmB interrupt source enable status */
+  if (__HAL_RTC_ALARM_GET_IT_SOURCE(hrtc, RTC_IT_ALRB) != RESET)
+  {
+    /* Get the pending status of the AlarmB Interrupt */
+    if (__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRBF) != RESET)
+    {
+      /* Clear the AlarmB interrupt pending bit */
+      __HAL_RTC_ALARM_CLEAR_FLAG(hrtc, RTC_FLAG_ALRBF);
+      /* AlarmB callback */
+      HAL_RTCEx_AlarmBEventCallback(hrtc);
+    }
+  }
+
 }
 
 
