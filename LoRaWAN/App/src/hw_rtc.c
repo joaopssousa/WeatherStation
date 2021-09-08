@@ -116,7 +116,7 @@ static const uint8_t DaysInMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 3
  */
 static const uint8_t DaysInMonthLeapYear[] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-RTC_HandleTypeDef RtcHandle = {0};//static RTC_HandleTypeDef RtcHandle = {0};
+static RTC_HandleTypeDef RtcHandle = {0};
 
 static RTC_AlarmTypeDef RTC_AlarmStructure;
 
@@ -127,12 +127,12 @@ static RTC_AlarmTypeDef RTC_AlarmStructure;
  */
 static RtcTimerContext_t RtcTimerContext;
 
-static int16_t intervalTime = 15;
-static uint8_t flag_alarm = 1;
 
 /* Private function prototypes -----------------------------------------------*/
 
 static void HW_RTC_SetConfig(void);
+
+static void RTC_AlarmConfig(void);
 
 static void HW_RTC_SetAlarmConfig(void);
 
@@ -154,7 +154,7 @@ void HW_RTC_Init(void)
   if (HW_RTC_Initalized == false)
   {
     HW_RTC_SetConfig();
-    RTC_AlarmConfig(intervalTime);
+    RTC_AlarmConfig();
     //HW_RTC_SetAlarmConfig();
     HW_RTC_SetTimerContext();
     HW_RTC_Initalized = true;
@@ -208,32 +208,34 @@ static void HW_RTC_SetConfig(void)
   HAL_RTCEx_SetSmoothCalib(&RtcHandle, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 100);
 }
 
-void RTC_AlarmConfig(uint8_t intervalo_seg){ // 30
-	//uint8_t hour, uint8_t minutes, uint8_t seconds
-	//RTC_DateTypeDef *RTC_DateStruct, RTC_TimeTypeDef *RTC_TimeStruct
+static void RTC_AlarmConfig(void){ // 30
+	RTC_TimeTypeDef RTC_TimeStruct = {0};
 	RTC_AlarmTypeDef RTC_AlarmStructure2 = {0};
 
-	//HAL_RTC_GetTime(&RtcHandle, RTC_TimeStruct, RTC_FORMAT_BIN);
+	HAL_RTC_GetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
 
-	RTC_AlarmStructure2.AlarmTime.Hours = 17;
-	RTC_AlarmStructure2.AlarmTime.Minutes = 44;
-	RTC_AlarmStructure2.AlarmTime.Seconds = 0 + intervalo_seg;
+
+//	RTC_AlarmStructure2.AlarmTime.Hours = 17;
+//	RTC_AlarmStructure2.AlarmTime.Minutes = 44;
+	RTC_AlarmStructure2.AlarmTime.Seconds = RTC_TimeStruct.Seconds + 10;
+	if(RTC_AlarmStructure2.AlarmTime.Seconds >= 60) {
+		RTC_AlarmStructure2.AlarmTime.Seconds = RTC_AlarmStructure2.AlarmTime.Seconds - 60;
+	}
 	//RTC_AlarmStructure.AlarmTime.SubSeconds = 0;
-	RTC_AlarmStructure2.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-	RTC_AlarmStructure2.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
-	//RTC_AlarmStructure.AlarmMask = RTC_ALARMMASK_NONE;
-	//RTC_AlarmStructure.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
-	RTC_AlarmStructure2.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
-	RTC_AlarmStructure2.AlarmDateWeekDay = 3;
+//	RTC_AlarmStructure2.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+//	RTC_AlarmStructure2.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
+	RTC_AlarmStructure2.AlarmMask = RTC_ALARMMASK_HOURS | RTC_ALARMMASK_MINUTES | RTC_ALARMMASK_DATEWEEKDAY;
+	//RTC_AlarmStructure.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_NONE;
+//	RTC_AlarmStructure2.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
+//	RTC_AlarmStructure2.AlarmDateWeekDay = 3;
 	RTC_AlarmStructure2.Alarm = RTC_ALARM_B;
 	HAL_RTC_SetAlarm_IT(&RtcHandle, &RTC_AlarmStructure2, RTC_FORMAT_BIN);
 
 }
 
 void HAL_RTCEx_AlarmBEventCallback(RTC_HandleTypeDef *hrtc) {
-	PRINTF("!!!!!!!!!!!!!! ALARM B !!!!!!!!!!!!!!\r\n");
-	flag_alarm++;
-	RTC_AlarmConfig(flag_alarm*intervalTime);
+	PRINTF("!!!!!!!!!!!!!! ALARM B !!!!!!!!!!!!!! (Alarmando a cada 10 seg)\r\n");
+	RTC_AlarmConfig();
 }
 
 /*!

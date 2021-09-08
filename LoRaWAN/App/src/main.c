@@ -320,6 +320,11 @@ int main(void)
 
   refresh_iwdg();
 
+//  PRINTF("\n================INICIANDO================\n");
+//  while(1);
+
+  refresh_iwdg();
+
   ble_config();
 
   refresh_iwdg();
@@ -619,6 +624,7 @@ static void Send(void *context) {
 		AppData.Buff[21]= (mean>>8);
 		AppData.Buff[22]= mean;
 		AppData.BuffSize += 2;
+		mean = 0;
 	}
 
 	LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
