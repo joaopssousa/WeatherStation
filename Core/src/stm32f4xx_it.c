@@ -201,6 +201,7 @@ void USART1_IRQHandler(void)
 
 
 	HAL_UART_IRQHandler(&huart1);
+//	=====================================
 	if(ble_index>sizeof(message_ble))
 		ble_index=0;
 	message_ble[ble_index] = rx_byte_uart1[0];
@@ -221,6 +222,7 @@ void USART1_IRQHandler(void)
 			}
 		}
 	}
+//	==========================================
 
 //  /* USER CODE BEGIN USART1_IRQn 0 */
 //	HAL_UART_Receive_IT(huart, pData, Size)(&huart1, (uint8_t*)&message_ble[ble_index++], 1, 100);

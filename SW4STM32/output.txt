@@ -3,7 +3,7 @@ Magic: b'SFU1'!!
 Magic: b'SFU1'!!
 number of segment :5
 0x8040400
-0x8055378
+0x8055370
 0x8055758
 0x8055760
 number of segment :6

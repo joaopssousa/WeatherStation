@@ -120,6 +120,8 @@ static RTC_HandleTypeDef RtcHandle = {0};
 
 static RTC_AlarmTypeDef RTC_AlarmStructure;
 
+uint8_t flag_alarm_B = 1;
+
 /*!
  * Keep the value of the RTC timer when the RTC alarm is set
  * Set with the HW_RTC_SetTimerContext function
@@ -131,8 +133,6 @@ static RtcTimerContext_t RtcTimerContext;
 /* Private function prototypes -----------------------------------------------*/
 
 static void HW_RTC_SetConfig(void);
-
-static void RTC_AlarmConfig(void);
 
 static void HW_RTC_SetAlarmConfig(void);
 
@@ -208,7 +208,7 @@ static void HW_RTC_SetConfig(void)
   HAL_RTCEx_SetSmoothCalib(&RtcHandle, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 100);
 }
 
-static void RTC_AlarmConfig(void){ // 30
+void RTC_AlarmConfig(void){ // 30
 	RTC_TimeTypeDef RTC_TimeStruct = {0};
 	RTC_AlarmTypeDef RTC_AlarmStructure2 = {0};
 
@@ -216,8 +216,8 @@ static void RTC_AlarmConfig(void){ // 30
 
 
 //	RTC_AlarmStructure2.AlarmTime.Hours = 17;
-//	RTC_AlarmStructure2.AlarmTime.Minutes = 44;
-	RTC_AlarmStructure2.AlarmTime.Seconds = RTC_TimeStruct.Seconds + 10;
+	RTC_AlarmStructure2.AlarmTime.Minutes = 0;
+	RTC_AlarmStructure2.AlarmTime.Seconds = 1;//RTC_TimeStruct.Seconds;
 	if(RTC_AlarmStructure2.AlarmTime.Seconds >= 60) {
 		RTC_AlarmStructure2.AlarmTime.Seconds = RTC_AlarmStructure2.AlarmTime.Seconds - 60;
 	}
@@ -234,8 +234,7 @@ static void RTC_AlarmConfig(void){ // 30
 }
 
 void HAL_RTCEx_AlarmBEventCallback(RTC_HandleTypeDef *hrtc) {
-	PRINTF("!!!!!!!!!!!!!! ALARM B !!!!!!!!!!!!!! (Alarmando a cada 10 seg)\r\n");
-	RTC_AlarmConfig();
+	flag_alarm_B = 0;
 }
 
 /*!

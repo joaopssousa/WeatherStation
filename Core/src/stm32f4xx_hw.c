@@ -140,7 +140,9 @@ void HW_Init(void)
     // Inicialização da Base do timer
     HAL_TIM_Base_Start_IT(&htim2);
 
+
     HAL_UART_Receive_IT(&huart1, rx_byte_uart1, 1);
+
 
     MX_IWDG_Init();
 
@@ -341,6 +343,7 @@ void SystemClock_Config(void)
 	}
 	PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
 	PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_HSE_DIV8;
+	//RCC_RTCCLKSOURCE_LSI  RCC_RTCCLKSOURCE_HSE_DIV8
 
 	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
 		Error_Handler();

@@ -320,11 +320,6 @@ int main(void)
 
   refresh_iwdg();
 
-//  PRINTF("\n================INICIANDO================\n");
-//  while(1);
-
-  refresh_iwdg();
-
   ble_config();
 
   refresh_iwdg();
@@ -392,6 +387,13 @@ int main(void)
 		}
 	}
 
+	/*Alarm B*/
+	if(flag_alarm_B == 0) {
+		flag_alarm_B = 1;
+		PRINTF("!!!!!!!!!!!!!! ALARM B !!!!!!!!!!!!!! (Alarmando a cada 1 min)\r\n");
+		RTC_AlarmConfig();
+	}
+
 	if(flagsStation.read_sensors)
 	{
 		flagsStation.read_sensors=0;
@@ -399,7 +401,7 @@ int main(void)
 		refresh_iwdg();
 		read_sensors(&Parameters);
 		refresh_iwdg();
-		PRINTF("Leitura da tensão da bateria\r\n");
+		PRINTF("Leitura da tensao da bateria\r\n");
 		vbat = get_battery_voltage();
 		refresh_iwdg();
 		vbat_int = (uint16_t)(double)(vbat*100);
@@ -603,7 +605,7 @@ static void Send(void *context) {
 
 	get_time_now(AppData.Buff);
 
-	//Sensores(&Parameters);
+//	Sensores(&Parameters);
 //	read_sensors(&Parameters);
 //	init_battery_monitor();							/* Initialize Battery monitor */
 //	vbat = get_battery_voltage();
@@ -620,7 +622,7 @@ static void Send(void *context) {
 
 	AppData.BuffSize = sizeof(Estation_Parameters)+8;
 
-	if(flagsStation.active_irradiator == 1) {
+	if(flagsStation.active_irradiator == 1 && mean != 0) {
 		AppData.Buff[21]= (mean>>8);
 		AppData.Buff[22]= mean;
 		AppData.BuffSize += 2;

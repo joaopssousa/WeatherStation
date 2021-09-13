@@ -67,8 +67,12 @@ extern "C" {
  */
 #define RTC_TEMP_DEV_TURNOVER                           ( 5.0 )
 
+extern uint8_t flag_alarm_B;
+
 
 void DateTime_Update(uint8_t* buffer_datetime_real) ;
+
+void RTC_AlarmConfig(void);
 
 
 /*!
