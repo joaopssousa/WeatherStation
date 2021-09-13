@@ -182,13 +182,13 @@ static void HW_RTC_SetConfig(void)
 
   /*Monday 1st January 2016*/
   RTC_DateStruct.Year = 21;
-  RTC_DateStruct.Month = RTC_MONTH_AUGUST;
-  RTC_DateStruct.Date = 26;
+  RTC_DateStruct.Month = RTC_MONTH_SEPTEMBER;
+  RTC_DateStruct.Date = 06;
   RTC_DateStruct.WeekDay = RTC_WEEKDAY_MONDAY;
   HAL_RTC_SetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN);
 
   /*at 0:0:0*/
-  RTC_TimeStruct.Hours = 17;
+  RTC_TimeStruct.Hours = 16;
   RTC_TimeStruct.Minutes = 00;
 
   RTC_TimeStruct.Seconds = 0;
