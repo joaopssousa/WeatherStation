@@ -622,15 +622,18 @@ static void Send(void *context) {
 
 	AppData.BuffSize = sizeof(Estation_Parameters)+8;
 
-	if(flagsStation.active_irradiator == 1 && mean != 0) {
+	if(flagsStation.active_irradiator == 1) {
 		AppData.Buff[21]= (mean>>8);
 		AppData.Buff[22]= mean;
 		AppData.BuffSize += 2;
+		LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
 		mean = 0;
 	}
+	else {
+		LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
+	}
 
-	LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
-
+	//LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
 }
 
 
