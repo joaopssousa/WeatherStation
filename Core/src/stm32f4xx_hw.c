@@ -39,6 +39,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "stm32f4xx_hal_adc.h"
 #include "stm32f4xx_hal_rcc_ex.h"
 #include "stm32f4xx_hal_iwdg.h"
+#include "battery_monitor.h"
 #include "ble.h"
 #include "com.h"
 
@@ -143,6 +144,7 @@ void HW_Init(void)
 
     HAL_UART_Receive_IT(&huart1, rx_byte_uart1, 1);
 
+    init_battery_monitor(&hadc);							/* Initialize Battery monitor */
 
     MX_IWDG_Init();
 

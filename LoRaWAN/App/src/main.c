@@ -109,8 +109,6 @@ char buffer_tag[50];
 /******************************** WeatherStation **********************************************/
 
 #define DATA_BUFF_SIZE                  64  // Tamanho do buffer de dados para envio
-uint16_t PLUVIOMETER_COUNT = 0; 			// Inicialização do contador do pluviometro
-
 
 uint8_t send_battery_voltage_flag = LORA_RESET;
 
@@ -312,9 +310,11 @@ int main(void)
 
   HAL_Init();										/* STM32 HAL library initialization*/
 
+  refresh_iwdg();
 
   SystemClock_Config();								/* Configure the system clock*/
 
+  refresh_iwdg();
 
   HW_Init();										/* Configure the hardware*/
 
@@ -329,10 +329,6 @@ int main(void)
   refresh_iwdg();
 
   init_irradiator();
-
-  refresh_iwdg();
-
-  init_battery_monitor();							/* Initialize Battery monitor */
 
   refresh_iwdg();
 
@@ -373,7 +369,6 @@ int main(void)
   {
 
 	refresh_iwdg();
-
 
 	if (flagsStation.pluviometer)
 	{
@@ -570,7 +565,7 @@ static void Send_Battery_Voltage(void *context) {
 	//Sensores(&Parameters);
 	read_sensors(&Parameters);
 
-	init_battery_monitor();							/* Initialize Battery monitor */
+	//init_battery_monitor();							/* Initialize Battery monitor */
 	vbat = get_battery_voltage();
 	vbat_int = (uint16_t)(double)(vbat*100);
 
@@ -676,7 +671,7 @@ static void LORA_RxData(lora_AppData_t *AppData)
 			DateTime_Update(AppData->Buff);
 			PRINTF("DATE-TIME UPDATED \n\r");
 		}
-		if (AppData->BuffSize == 1)
+		if (AppData->BuffSize == 0x0D)
 		{
 			AppLedStateOn = AppData->Buff[0] & 0x01;
 			if (AppLedStateOn == RESET)
@@ -694,6 +689,8 @@ static void LORA_RxData(lora_AppData_t *AppData)
     default:
       break;
   }
+  refresh_iwdg();
+  LoraStartTx(TX_ON_TIMER);
 }
 
 static void OnTxTimerEvent(void *context)

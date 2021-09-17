@@ -195,6 +195,7 @@ static void HW_RTC_SetConfig(void)
   RTC_TimeStruct.Hours = 17;
   RTC_TimeStruct.Minutes = 44;
 
+
   RTC_TimeStruct.Seconds = 0;
   RTC_TimeStruct.TimeFormat = 0;
   RTC_TimeStruct.SubSeconds = 0;
