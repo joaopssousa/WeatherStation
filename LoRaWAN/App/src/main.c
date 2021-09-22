@@ -420,10 +420,10 @@ int main(void)
 		count_measures++;
 		refresh_iwdg();
 
-		if(count_measures == 5) {
+		if(count_measures == MAX_MEASURES) {
 			count_measures = 0;
-			mean = mediaCalculator(5);
-			PRINTF("Average of the last 5 measurements of the radiator:%ld W/m2\r\n", mean);
+			mean = mediaCalculator(MAX_MEASURES);
+			PRINTF("Media irradiador:%ld W/m2\r\n", mean);
 		}
 		refresh_iwdg();
 	}
@@ -627,8 +627,6 @@ static void Send(void *context) {
 	else {
 		LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
 	}
-
-	//LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
 }
 
 
