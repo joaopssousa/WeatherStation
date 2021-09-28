@@ -37,6 +37,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "hw.h"
 #include "low_power_manager.h"
 #include "systime.h"
+#include "station.h"
 
 /* Private typedef -----------------------------------------------------------*/
 typedef struct
@@ -120,7 +121,6 @@ static RTC_HandleTypeDef RtcHandle = {0};
 
 static RTC_AlarmTypeDef RTC_AlarmStructure;
 
-uint8_t flag_alarm_B = 1;
 
 /*!
  * Keep the value of the RTC timer when the RTC alarm is set
@@ -193,7 +193,7 @@ static void HW_RTC_SetConfig(void)
 
   /*at 0:0:0*/
   RTC_TimeStruct.Hours = 17;
-  RTC_TimeStruct.Minutes = 44;
+  RTC_TimeStruct.Minutes = 40;
 
 
   RTC_TimeStruct.Seconds = 0;
@@ -210,23 +210,23 @@ static void HW_RTC_SetConfig(void)
 }
 
 void RTC_AlarmConfig(void){ // 30
-	RTC_TimeTypeDef RTC_TimeStruct = {0};
+	//RTC_TimeTypeDef RTC_TimeStruct = {0};
 	RTC_AlarmTypeDef RTC_AlarmStructure2 = {0};
 
-	HAL_RTC_GetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
+	//HAL_RTC_GetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
 
 
-//	RTC_AlarmStructure2.AlarmTime.Hours = 17;
-	RTC_AlarmStructure2.AlarmTime.Minutes = 0;
-	RTC_AlarmStructure2.AlarmTime.Seconds = 1;//RTC_TimeStruct.Seconds;
-	if(RTC_AlarmStructure2.AlarmTime.Seconds >= 60) {
-		RTC_AlarmStructure2.AlarmTime.Seconds = RTC_AlarmStructure2.AlarmTime.Seconds - 60;
-	}
+	RTC_AlarmStructure2.AlarmTime.Hours = 12;
+	RTC_AlarmStructure2.AlarmTime.Minutes = 10;
+	RTC_AlarmStructure2.AlarmTime.Seconds = 30;//RTC_TimeStruct.Seconds;
+//	if(RTC_AlarmStructure2.AlarmTime.Seconds >= 60) {
+//		RTC_AlarmStructure2.AlarmTime.Seconds = RTC_AlarmStructure2.AlarmTime.Seconds - 60;
+//	}
 	//RTC_AlarmStructure.AlarmTime.SubSeconds = 0;
 //	RTC_AlarmStructure2.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
 //	RTC_AlarmStructure2.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
-	RTC_AlarmStructure2.AlarmMask = RTC_ALARMMASK_HOURS | RTC_ALARMMASK_MINUTES | RTC_ALARMMASK_DATEWEEKDAY;
-	//RTC_AlarmStructure.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_NONE;
+	RTC_AlarmStructure2.AlarmMask = RTC_ALARMMASK_DATEWEEKDAY;// | RTC_ALARMMASK_MINUTES | RTC_ALARMMASK_HOURS;
+	//RTC_AlarmStructure2.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_NONE;
 //	RTC_AlarmStructure2.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
 //	RTC_AlarmStructure2.AlarmDateWeekDay = 3;
 	RTC_AlarmStructure2.Alarm = RTC_ALARM_B;
@@ -235,7 +235,8 @@ void RTC_AlarmConfig(void){ // 30
 }
 
 void HAL_RTCEx_AlarmBEventCallback(RTC_HandleTypeDef *hrtc) {
-	flag_alarm_B = 0;
+	flagsStation.alarm_b = 0;
+	RTC_AlarmConfig();
 }
 
 /*!

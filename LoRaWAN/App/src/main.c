@@ -361,7 +361,7 @@ int main(void)
 //  LoraStartBatteryMonitor();
 
   uint32_t prim; //tratar depois as interrupcoes
-  uint8_t buffer_time[6];
+//  uint8_t buffer_time[6];
   flags_ble.all_flags=0;
   flagsStation.all_flags=0;
 
@@ -370,24 +370,26 @@ int main(void)
 
 	refresh_iwdg();
 
-	if (flagsStation.pluviometer)
-	{
-
-		flagsStation.pluviometer=0;
-		get_time_now((uint8_t*)&buffer_time);
-		if ((buffer_time[3] == 23) && (buffer_time[4] == 59) && buffer_time[5] > 40)
-		{
-		  // Inicio de outro dia, zera-se o contador de precipitação.
-		  pluviometer_count = 0;
-		}
-	}
+//	if (flagsStation.pluviometer)
+//	{
+//
+//		flagsStation.pluviometer=0;
+//		get_time_now((uint8_t*)&buffer_time);
+//		if ((buffer_time[3] == 23) && (buffer_time[4] == 59) && buffer_time[5] > 40)
+//		{
+//		  // Inicio de outro dia, zera-se o contador de precipitação.
+//		  pluviometer_count = 0;
+//		}
+//	}
 
 	/*Alarm B*/
-	if(flag_alarm_B == 0) {
-		flag_alarm_B = 1;
-		PRINTF("!!!!!!!!!!!!!! ALARM B !!!!!!!!!!!!!! (Alarmando a cada 1 min)\r\n");
-		RTC_AlarmConfig();
+	if(flagsStation.alarm_b == 0) {
+		flagsStation.alarm_b = 1;
+		PRINTF("!!!!!!!!!!!!!! PLUVIOMETRO RESETADO !!!!!!!!!!!!!!\r\n");
+		pluviometer_count = 0;
 	}
+
+	refresh_iwdg();
 
 	if(flagsStation.read_sensors)
 	{
@@ -600,11 +602,8 @@ static void Send(void *context) {
 
 	get_time_now(AppData.Buff);
 
-//	Sensores(&Parameters);
-//	read_sensors(&Parameters);
-//	init_battery_monitor();							/* Initialize Battery monitor */
-//	vbat = get_battery_voltage();
-//	vbat_int = (uint16_t)(double)(vbat*100);
+	//Sensores(&Parameters);
+	read_sensors(&Parameters);
 
 	AppData.Port = LORAWAN_APP_PORT;
 
