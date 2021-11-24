@@ -557,11 +557,18 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct = {0};
 
+  __HAL_RCC_BKPSRAM_CLK_ENABLE();
+   // additional code for Backup RAM enable
+
+   HAL_PWR_EnableBkUpAccess();
+   // additional code for Backup RAM enable
+
+   HAL_PWREx_EnableBkUpReg();
+   // additional code for Backup RAM enable
+
   /*##-1- Configue the RTC clock soucre ######################################*/
   /* -a- Enable LSE Oscillator */
-  RCC_OscInitStruct.OscillatorType =  RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI
-          |RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.OscillatorType =  RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.LSIState = RCC_LSI_ON;

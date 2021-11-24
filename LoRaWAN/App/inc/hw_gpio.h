@@ -57,6 +57,9 @@ typedef void(GpioIrqHandler)(void *context);
 
 IRQn_Type MSP_GetIRQn(uint16_t gpioPin);
 
+void turn_on_lora(void);
+
+void turn_off_lora(void);
 
 /*!
  * @brief Initializes the given GPIO object

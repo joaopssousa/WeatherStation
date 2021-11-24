@@ -90,6 +90,8 @@ void Error_Handler(void);
 #define DEBUG_RX_GPIO_Port GPIOB
 #define LORA_NSS_Pin GPIO_PIN_1
 #define LORA_NSS_GPIO_Port GPIOB
+#define LORA_CONFIG_pin	GPIO_PIN_12
+#define LORA_CONFIG_GPIO_Port GPIOE
 #define LORA_SCK_Pin GPIO_PIN_13
 #define LORA_SCK_GPIO_Port GPIOB
 //#define MEM_SCL_Pin GPIO_PIN_6
@@ -130,6 +132,8 @@ void Error_Handler(void);
 
 #define SD_DET_CARD_Pin GPIO_PIN_7
 #define SD_DET_CARD_GPIO_Port GPIOC
+
+
 
 
 

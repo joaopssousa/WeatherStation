@@ -124,7 +124,11 @@ char Buffer_to_send[sizeof(Estation_Parameters)] = { 0 };
 // Retorno dos parametros definidos em station.h
 extern Estation_Parameters Parameters;
 
+//RTC_HandleTypeDef RtcHandle = {0};
+
 uint32_t mean = 0;
+
+uint8_t tempo2[6];
 
 /***********************************************************************************************/
 
@@ -133,18 +137,18 @@ static uint8_t LORA_GetBatteryLevel (void);
 
 /********************************** Battery ****************************************************/
 
-static void Send_Battery_Voltage(void *context);
-static void LoraStartBatteryMonitor(void);
+//static void Send_Battery_Voltage(void *context);
+//static void LoraStartBatteryMonitor(void);
 
 /***********************************************************************************************/
 
 
 /************************* SD CArd Function prototypes *****************************************/
 static void mount_sd_card();
-static void REMOVE_and_OPENAGAIN(const char* arq);
-static void VERIFY_OPEN(const char* arq);
-static void SAVE_ON_CARD();
-static void REMOVE_FROM_CARD();
+//static void REMOVE_and_OPENAGAIN(const char* arq);
+//static void VERIFY_OPEN(const char* arq);
+//static void SAVE_ON_CARD();
+//static void REMOVE_FROM_CARD();
 /***********************************************************************************************/
 
 
@@ -197,7 +201,7 @@ LoraFlagStatus AppProcessRequest = LORA_RESET;
 static uint8_t AppLedStateOn = RESET;
 
 static TimerEvent_t TxTimer;
-static TimerEvent_t battery_monitor_timer;
+//static TimerEvent_t battery_monitor_timer;
 
 /* !
  *Initialises the Lora Parameters
@@ -231,65 +235,65 @@ static void mount_sd_card(){
 	  }
 }
 
-static void REMOVE_and_OPENAGAIN(const char* arq){
+//static void REMOVE_and_OPENAGAIN(const char* arq){
+//
+//	res = f_unlink(arq);
+//	if(res == FR_LOCKED){
+//		f_close(&SDFile); 		// Fecha
+//		f_unlink(arq);			// Depois apaga
+//	}
+//	else if(res == FR_NO_FILE){
+//		return; 	// Não há nem arquivo existente com o nome informado
+//	}
+//
+//	if(f_open(&SDFile, arq, FA_OPEN_APPEND | FA_READ | FA_WRITE) != FR_OK)
+//	{
+//		// TODO Imprimir os erros e tratar na uart
+//	  Error_Handler();
+//	}
+//
+//	f_sync(&SDFile);
+//}
 
-	res = f_unlink(arq);
-	if(res == FR_LOCKED){
-		f_close(&SDFile); 		// Fecha
-		f_unlink(arq);			// Depois apaga
-	}
-	else if(res == FR_NO_FILE){
-		return; 	// Não há nem arquivo existente com o nome informado
-	}
+//static void VERIFY_OPEN(const char* arq){
+//	res = f_open(&SDFile, arq, FA_OPEN_APPEND | FA_READ | FA_WRITE) != FR_OK;
+//	if(res == FR_OK){
+//		PRINT_SD_CARD(PRINTF("FR_OK \n");)
+//		return;
+//	}
+//	else if(res == FR_LOCKED){
+//		PRINT_SD_CARD(PRINTF("FR_LOCKED \n");)
+//		return;
+//	}
+//	else if(res == FR_DISK_ERR){
+//		PRINT_SD_CARD(PRINTF("FR_DISK_ERR \n");)
+//		Error_Handler();
+//	}
+//	else{
+//		PRINT_SD_CARD(PRINTF("Error to open the log file on the SD Card \n Reset the board \n");)
+//		Error_Handler();
+//	}
+//}
 
-	if(f_open(&SDFile, arq, FA_OPEN_APPEND | FA_READ | FA_WRITE) != FR_OK)
-	{
-		// TODO Imprimir os erros e tratar na uart
-	  Error_Handler();
-	}
+//static void SAVE_ON_CARD(){
+//	//delayed_store_flag++; 	// Contagem de TAGs atrasadas ao envio
+//
+//	// Se não há conexão entre o gateway, armazena no cartão SD para envio posterior
+////	PRINT_SD_CARD(PRINTF("===> Escrita no cartao. Count = %d\r\n", delayed_store_flag);)
+////	f_write(&SDFile, store_TAG[last_TAG].N_TAG, sizeof(store_TAG[last_TAG].N_TAG), (void *)&byteswritten);
+//////	f_sync(&SDFile);	// Um ou outro
+////	f_close(&SDFile);
+//}
 
-	f_sync(&SDFile);
-}
-
-static void VERIFY_OPEN(const char* arq){
-	res = f_open(&SDFile, arq, FA_OPEN_APPEND | FA_READ | FA_WRITE) != FR_OK;
-	if(res == FR_OK){
-		PRINT_SD_CARD(PRINTF("FR_OK \n");)
-		return;
-	}
-	else if(res == FR_LOCKED){
-		PRINT_SD_CARD(PRINTF("FR_LOCKED \n");)
-		return;
-	}
-	else if(res == FR_DISK_ERR){
-		PRINT_SD_CARD(PRINTF("FR_DISK_ERR \n");)
-		Error_Handler();
-	}
-	else{
-		PRINT_SD_CARD(PRINTF("Error to open the log file on the SD Card \n Reset the board \n");)
-		Error_Handler();
-	}
-}
-
-static void SAVE_ON_CARD(){
-	//delayed_store_flag++; 	// Contagem de TAGs atrasadas ao envio
-
-	// Se não há conexão entre o gateway, armazena no cartão SD para envio posterior
-//	PRINT_SD_CARD(PRINTF("===> Escrita no cartao. Count = %d\r\n", delayed_store_flag);)
-//	f_write(&SDFile, store_TAG[last_TAG].N_TAG, sizeof(store_TAG[last_TAG].N_TAG), (void *)&byteswritten);
-////	f_sync(&SDFile);	// Um ou outro
-//	f_close(&SDFile);
-}
-
-static void REMOVE_FROM_CARD(){
-	// Remove do cartão SD e armazena estrutura para envio da Lora
-	//TODO Generalizar a função colocando um argumento para receber o dado que estava no cartão
-
-//	f_gets(buffer_tag, bytesread, &SDFile);
-//	memcpy(tag_to_lora.N_TAG, buffer_tag, sizeof(buffer_tag));
-//	delayed_store_flag--;
-//	PRINT_SD_CARD(PRINTF("===> Removida do cartão. Count = %d\r\n", delayed_store_flag);)
-}
+//static void REMOVE_FROM_CARD(){
+//	// Remove do cartão SD e armazena estrutura para envio da Lora
+//	//TODO Generalizar a função colocando um argumento para receber o dado que estava no cartão
+//
+////	f_gets(buffer_tag, bytesread, &SDFile);
+////	memcpy(tag_to_lora.N_TAG, buffer_tag, sizeof(buffer_tag));
+////	delayed_store_flag--;
+////	PRINT_SD_CARD(PRINTF("===> Removida do cartão. Count = %d\r\n", delayed_store_flag);)
+//}
 
 /************* End of Sd card functions *****************/
 
@@ -332,6 +336,13 @@ int main(void)
 
   refresh_iwdg();
 
+  get_time_now(tempo2);
+  int hora = read_sram_bckp(BKPSRAM_BASE+5);
+  int minute = read_sram_bckp(BKPSRAM_BASE+6);
+  int segun = read_sram_bckp(BKPSRAM_BASE+7);
+  PRINTF("%d:%d:%d\n", tempo2[3], tempo2[4], tempo2[5]);
+  PRINTF("sram %d:%d:%d\n", hora, minute, segun);
+
   mount_sd_card();									/* Mount and prepare SD Card */
 
   refresh_iwdg();
@@ -348,6 +359,8 @@ int main(void)
 
   refresh_iwdg();
 
+  turn_on_lora();
+
   LORA_Init(&LoRaMainCallbacks, &LoRaParamInit);	/* Configure the Lora Stack*/
 
   refresh_iwdg();
@@ -358,10 +371,9 @@ int main(void)
 
   HAL_TIM_Base_Start_IT(&htim3);
 
+
 //  LoraStartBatteryMonitor();
 
-  uint32_t prim; //tratar depois as interrupcoes
-//  uint8_t buffer_time[6];
   flags_ble.all_flags=0;
   flagsStation.all_flags=0;
 
@@ -370,23 +382,14 @@ int main(void)
 
 	refresh_iwdg();
 
-//	if (flagsStation.pluviometer)
-//	{
-//
-//		flagsStation.pluviometer=0;
-//		get_time_now((uint8_t*)&buffer_time);
-//		if ((buffer_time[3] == 23) && (buffer_time[4] == 59) && buffer_time[5] > 40)
-//		{
-//		  // Inicio de outro dia, zera-se o contador de precipitação.
-//		  pluviometer_count = 0;
-//		}
-//	}
+	write_Time();
 
 	/*Alarm B*/
 	if(flagsStation.alarm_b == 0) {
 		flagsStation.alarm_b = 1;
 		PRINTF("!!!!!!!!!!!!!! PLUVIOMETRO RESETADO !!!!!!!!!!!!!!\r\n");
 		pluviometer_count = 0;
+		write_sram_bckp(pluviometer_count, BKPSRAM_BASE+20);
 	}
 
 	refresh_iwdg();
@@ -444,7 +447,6 @@ int main(void)
 	if (flags_ble.update_mode==SET){
 			PRINTF("Update mode \r\n");
 			refresh_iwdg();
-			prim = __get_PRIMASK();
 
 			flags_ble.update_mode = RESET;
 			refresh_iwdg();
@@ -526,19 +528,33 @@ static void LORA_HasJoined(void)
 }
 
 
-static void Send_Battery_Voltage(void *context) {
-
+//static void Send_Battery_Voltage(void *context) {
+//
+////	double vbat;
+////	uint16_t vbat_int;
+////	vbat = get_battery_voltage();
+////	vbat_int = (uint16_t)(double)(vbat*100);
+////	AppData.Port = LORAWAN_APP_PORT;
+////
+////	get_time_now(AppData.Buff);
+////
+////	AppData.BuffSize = 8;
+////	AppData.Buff[6] = (vbat_int>>8)&0xFF;
+////	AppData.Buff[7] =  vbat_int&0xFF;
+////
+////	if (LORA_JoinStatus() != LORA_SET) {
+////		/*Not joined, try again later*/
+////		LORA_Join();
+////		return;
+////	}
+////
+////	TVL1(PRINTF("SEND Battery voltage\n\r");)
+////	LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
+//
 //	double vbat;
 //	uint16_t vbat_int;
 //	vbat = get_battery_voltage();
 //	vbat_int = (uint16_t)(double)(vbat*100);
-//	AppData.Port = LORAWAN_APP_PORT;
-//
-//	get_time_now(AppData.Buff);
-//
-//	AppData.BuffSize = 8;
-//	AppData.Buff[6] = (vbat_int>>8)&0xFF;
-//	AppData.Buff[7] =  vbat_int&0xFF;
 //
 //	if (LORA_JoinStatus() != LORA_SET) {
 //		/*Not joined, try again later*/
@@ -546,44 +562,30 @@ static void Send_Battery_Voltage(void *context) {
 //		return;
 //	}
 //
-//	TVL1(PRINTF("SEND Battery voltage\n\r");)
+//	TVL1(PRINTF("SEND REQUEST\n\r");)
+//
+//	get_time_now(AppData.Buff);
+//
+//	//Sensores(&Parameters);
+//	read_sensors(&Parameters);
+//
+//	//init_battery_monitor();							/* Initialize Battery monitor */
+//	vbat = get_battery_voltage();
+//	vbat_int = (uint16_t)(double)(vbat*100);
+//
+//	AppData.Port = LORAWAN_APP_PORT;
+//
+//	//muda_buffer(&AppData[6], Buffer_to_send);
+//	memcpy(&(AppData.Buff[6]),Buffer_to_send,sizeof(Estation_Parameters));
+//
+//	AppData.Buff[19]= (vbat_int>>8)&0xFF;
+//	AppData.Buff[20]= vbat_int&0xFF;
+//
+//	AppData.BuffSize = sizeof(Estation_Parameters)+8;
+//
 //	LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
-
-	double vbat;
-	uint16_t vbat_int;
-	vbat = get_battery_voltage();
-	vbat_int = (uint16_t)(double)(vbat*100);
-
-	if (LORA_JoinStatus() != LORA_SET) {
-		/*Not joined, try again later*/
-		LORA_Join();
-		return;
-	}
-
-	TVL1(PRINTF("SEND REQUEST\n\r");)
-
-	get_time_now(AppData.Buff);
-
-	//Sensores(&Parameters);
-	read_sensors(&Parameters);
-
-	//init_battery_monitor();							/* Initialize Battery monitor */
-	vbat = get_battery_voltage();
-	vbat_int = (uint16_t)(double)(vbat*100);
-
-	AppData.Port = LORAWAN_APP_PORT;
-
-	//muda_buffer(&AppData[6], Buffer_to_send);
-	memcpy(&(AppData.Buff[6]),Buffer_to_send,sizeof(Estation_Parameters));
-
-	AppData.Buff[19]= (vbat_int>>8)&0xFF;
-	AppData.Buff[20]= vbat_int&0xFF;
-
-	AppData.BuffSize = sizeof(Estation_Parameters)+8;
-
-	LORA_send((lora_AppData_t*)&AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
-
-}
+//
+//}
 
 
 static void Send(void *context) {
@@ -697,17 +699,17 @@ static void OnTxTimerEvent(void *context)
   AppProcessRequest = LORA_SET;
 }
 
-static void OnBatteryTimerEvent(void *context) {
-	/*Wait for next tx slot*/
-	TimerStart(&battery_monitor_timer);
-	send_battery_voltage_flag = LORA_SET;
-}
+//static void OnBatteryTimerEvent(void *context) {
+//	/*Wait for next tx slot*/
+//	TimerStart(&battery_monitor_timer);
+//	send_battery_voltage_flag = LORA_SET;
+//}
 
-static void LoraStartBatteryMonitor(void) {
-	TimerInit(&battery_monitor_timer, OnBatteryTimerEvent);
-	TimerSetValue(&TxTimer, BATTERY_MONITOR_DUTYCYCLE);
-	OnBatteryTimerEvent(NULL);
-}
+//static void LoraStartBatteryMonitor(void) {
+//	TimerInit(&battery_monitor_timer, OnBatteryTimerEvent);
+//	TimerSetValue(&TxTimer, BATTERY_MONITOR_DUTYCYCLE);
+//	OnBatteryTimerEvent(NULL);
+//}
 
 static void LoraStartTx(TxEventType_t EventType)
 {
@@ -751,12 +753,12 @@ uint8_t LORA_GetBatteryLevel(void)
   return 0xFF;
 }
 
-static uint8_t store_battery_voltage(void){
-	return 0;
-}
-
-static uint8_t store_weather_data(void){
-	return 0;
-}
+//static uint8_t store_battery_voltage(void){
+//	return 0;
+//}
+//
+//static uint8_t store_weather_data(void){
+//	return 0;
+//}
 
 /*****************************END OF FILE*****************************/

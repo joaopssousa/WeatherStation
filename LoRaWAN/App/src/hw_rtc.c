@@ -88,6 +88,8 @@ typedef struct
 #define  DAYS_IN_MONTH_CORRECTION_LEAP     ((uint32_t) 0x445550 )
 
 #define DIVC( X, N )                                ( ( ( X ) + ( N ) -1 ) / ( N ) )
+
+#define MEMO_NUMBER	8
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /*!
@@ -121,6 +123,7 @@ static RTC_HandleTypeDef RtcHandle = {0};
 
 static RTC_AlarmTypeDef RTC_AlarmStructure;
 
+char tempo_mem[10];
 
 /*!
  * Keep the value of the RTC timer when the RTC alarm is set
@@ -134,14 +137,23 @@ static RtcTimerContext_t RtcTimerContext;
 
 static void HW_RTC_SetConfig(void);
 
-static void HW_RTC_SetAlarmConfig(void);
-
-static void setRTCCalibration(int calibVal, RTC_HandleTypeDef *hrtc);
+//static void HW_RTC_SetAlarmConfig(void);
 
 static void HW_RTC_StartWakeUpAlarm(uint32_t timeoutValue);
 
 static uint64_t HW_RTC_GetCalendarValue(RTC_DateTypeDef *RTC_DateStruct, RTC_TimeTypeDef *RTC_TimeStruct);
 
+void writeBKP(uint32_t data);
+
+uint32_t readBKP(void);
+
+void printBKP(void);
+
+void write_sram_bckp(uint8_t data, uint32_t addr);
+
+uint8_t read_sram_bckp(uint32_t addr);
+
+void write_Time(void);
 
 /* Exported functions ---------------------------------------------------------*/
 
@@ -184,9 +196,13 @@ static void HW_RTC_SetConfig(void)
   RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
   RtcHandle.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
 
-  HAL_RTC_Init(&RtcHandle);
+  if(HAL_RTC_Init(&RtcHandle)!=HAL_OK)
+	  while(1);
 
-  if(HAL_RTCEx_BKUPRead(&RtcHandle, RTC_BKP_DR1) != 0x32F2) {
+  if((read_sram_bckp(BKPSRAM_BASE+1)) != MEMO_NUMBER) {
+	  PRINTF("\nINICIALIZAÇÃO\n");
+	  write_sram_bckp(0, BKPSRAM_BASE+20);
+
 	  /*Monday 1st January 2016*/
 	  RTC_DateStruct.Year = 21;
 	  RTC_DateStruct.Month = RTC_MONTH_SEPTEMBER;
@@ -195,10 +211,8 @@ static void HW_RTC_SetConfig(void)
 	  HAL_RTC_SetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN);
 
 	  /*at 0:0:0*/
-	  RTC_TimeStruct.Hours = 17;
-	  RTC_TimeStruct.Minutes = 50;
-
-
+	  RTC_TimeStruct.Hours = 13;
+	  RTC_TimeStruct.Minutes = 25;
 	  RTC_TimeStruct.Seconds = 0;
 	  RTC_TimeStruct.TimeFormat = 0;
 	  RTC_TimeStruct.SubSeconds = 0;
@@ -209,9 +223,53 @@ static void HW_RTC_SetConfig(void)
 
 	  /*Enable Direct Read of the calendar registers (not through Shadow) */
 	  HAL_RTCEx_EnableBypassShadow(&RtcHandle);
-	  HAL_RTCEx_SetSmoothCalib(&RtcHandle, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 150);//130
-	  HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR2, 0x32F2);
+	  HAL_RTCEx_SetSmoothCalib(&RtcHandle, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 120);//130
+
+	  write_sram_bckp(MEMO_NUMBER, BKPSRAM_BASE+1);
   }
+  else {
+	  PRINTF("\nRESET\n");
+
+	  RTC_DateStruct.Year = read_sram_bckp(BKPSRAM_BASE+8);
+	  RTC_DateStruct.Month = read_sram_bckp(BKPSRAM_BASE+9);
+	  RTC_DateStruct.Date = read_sram_bckp(BKPSRAM_BASE+10);
+	  RTC_DateStruct.WeekDay = read_sram_bckp(BKPSRAM_BASE+11);
+	  HAL_RTC_SetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN);
+
+	  RTC_TimeStruct.Hours = read_sram_bckp(BKPSRAM_BASE+5);
+	  RTC_TimeStruct.Minutes = read_sram_bckp(BKPSRAM_BASE+6);
+	  RTC_TimeStruct.SubSeconds = read_sram_bckp(BKPSRAM_BASE+12);
+	  if(RTC_TimeStruct.SubSeconds >= 700) {
+		  RTC_TimeStruct.Seconds = (read_sram_bckp(BKPSRAM_BASE+7))+1;
+		  PRINTF("Subseconds: %d\n", RTC_TimeStruct.SubSeconds);
+		  PRINTF("AUMENTA 1 SEG\n");
+	  }
+	  else {
+		  PRINTF("Subseconds: %d\n", RTC_TimeStruct.SubSeconds);
+		  RTC_TimeStruct.Seconds = read_sram_bckp(BKPSRAM_BASE+7);
+	  }
+	  RTC_TimeStruct.TimeFormat = 0;
+	  RTC_TimeStruct.StoreOperation = RTC_DAYLIGHTSAVING_NONE;
+	  RTC_TimeStruct.DayLightSaving = RTC_STOREOPERATION_RESET;
+
+	  HAL_RTC_SetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
+  }
+}
+
+void write_Time(void) {
+	RTC_TimeTypeDef RTC_TimeStruct;
+	RTC_DateTypeDef RTC_DateStruct;
+
+	HAL_RTC_GetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
+	HAL_RTC_GetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN);
+
+	write_sram_bckp(RTC_TimeStruct.Hours, BKPSRAM_BASE+5);
+	write_sram_bckp(RTC_TimeStruct.Minutes, BKPSRAM_BASE+6);
+	write_sram_bckp(RTC_TimeStruct.Seconds, BKPSRAM_BASE+7);
+	write_sram_bckp(RTC_DateStruct.Year, BKPSRAM_BASE+8);
+	write_sram_bckp(RTC_DateStruct.Month, BKPSRAM_BASE+9);
+	write_sram_bckp(RTC_DateStruct.Date, BKPSRAM_BASE+10);
+	write_sram_bckp(RTC_DateStruct.WeekDay, BKPSRAM_BASE+11);
 }
 
 void RTC_AlarmConfig(void){ // 30
@@ -221,8 +279,8 @@ void RTC_AlarmConfig(void){ // 30
 	//HAL_RTC_GetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
 
 
-	RTC_AlarmStructure2.AlarmTime.Hours = 18;
-	RTC_AlarmStructure2.AlarmTime.Minutes = 1;
+	//RTC_AlarmStructure2.AlarmTime.Hours = 15;
+	RTC_AlarmStructure2.AlarmTime.Minutes = 3;
 	RTC_AlarmStructure2.AlarmTime.Seconds = 1;//RTC_TimeStruct.Seconds;
 //	if(RTC_AlarmStructure2.AlarmTime.Seconds >= 60) {
 //		RTC_AlarmStructure2.AlarmTime.Seconds = RTC_AlarmStructure2.AlarmTime.Seconds - 60;
@@ -230,7 +288,7 @@ void RTC_AlarmConfig(void){ // 30
 	//RTC_AlarmStructure.AlarmTime.SubSeconds = 0;
 //	RTC_AlarmStructure2.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
 //	RTC_AlarmStructure2.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
-	RTC_AlarmStructure2.AlarmMask = RTC_ALARMMASK_DATEWEEKDAY;// | RTC_ALARMMASK_MINUTES | RTC_ALARMMASK_HOURS;
+	RTC_AlarmStructure2.AlarmMask = RTC_ALARMMASK_DATEWEEKDAY | RTC_ALARMMASK_HOURS;// | RTC_ALARMMASK_MINUTES | RTC_ALARMMASK_HOURS;
 	//RTC_AlarmStructure2.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_NONE;
 //	RTC_AlarmStructure2.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
 //	RTC_AlarmStructure2.AlarmDateWeekDay = 3;
@@ -242,38 +300,6 @@ void RTC_AlarmConfig(void){ // 30
 void HAL_RTCEx_AlarmBEventCallback(RTC_HandleTypeDef *hrtc) {
 	flagsStation.alarm_b = 0;
 	RTC_AlarmConfig();
-}
-
-// ---- RTC calibration function ----
-// calibVal should be given in drift/day in seconds
-// calibration output on PC13
-static void setRTCCalibration(int calibVal, RTC_HandleTypeDef *hrtc) {
-	uint16_t calm = 0;
-	uint32_t temp;
-
-	if (calibVal == 0) return;
-	else if (calibVal < 0) {		// drift offset is negative. need to slow rtc down
-		if (calibVal <= -42) {		// bounds checking. just set to max
-			HAL_RTCEx_SetSmoothCalib(hrtc, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 0x1FF);
-		}
-		else {
-			// math for setting CALM 9-bit register in RTC. formula in notes and in L0 programming reference manual
-			temp = -calibVal*32768*32/86400;		// possible overflow when doing math, so reordering
-			calm = temp;
-			HAL_RTCEx_SetSmoothCalib(hrtc, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, calm);
-		}
-	}
-	else {
-		if (calibVal >= 42) { 		// drift offset is positive. need to speed rtc up
-			HAL_RTCEx_SetSmoothCalib(hrtc, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_SET, 0);
-		}
-		else {
-			// math
-			temp = 512-(calibVal*32768*32/86400);
-			calm = temp;
-			HAL_RTCEx_SetSmoothCalib(hrtc, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_SET, calm);
-		}
-	}
 }
 
 /*!
@@ -511,10 +537,10 @@ uint32_t HW_RTC_GetTimerContext(void)
  * @param none
  * @retval none
  */
-static void HW_RTC_SetAlarmConfig(void)
-{
-  HAL_RTC_DeactivateAlarm(&RtcHandle, RTC_ALARM_A);
-}
+//static void HW_RTC_SetAlarmConfig(void)
+//{
+//  HAL_RTC_DeactivateAlarm(&RtcHandle, RTC_ALARM_A);
+//}
 
 /*!
  * @brief start wake up alarm
@@ -708,6 +734,42 @@ void HW_RTC_BKUPRead(uint32_t *Data0, uint32_t *Data1)
 {
   *Data0 = HAL_RTCEx_BKUPRead(&RtcHandle, RTC_BKP_DR0);
   *Data1 = HAL_RTCEx_BKUPRead(&RtcHandle, RTC_BKP_DR1);
+}
+
+void writeBKP(uint32_t data) {
+	__HAL_RTC_WRITEPROTECTION_DISABLE(&RtcHandle);
+	HAL_PWR_EnableBkUpAccess();
+//	leitor = HAL_RTCEx_BKUPRead(&RtcHandle, RTC_BKP_DR8);
+//	PRINTF("Antes de escrever: %d\n", leitor);
+	HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR8, data);
+//	leitor = HAL_RTCEx_BKUPRead(&RtcHandle, RTC_BKP_DR8);
+//	PRINTF("Depois de escrever: %d\n", leitor);
+	//HAL_PWR_DisableBkUpAccess();
+	__HAL_RTC_WRITEPROTECTION_ENABLE(&RtcHandle);
+}
+
+uint32_t readBKP(void) {
+	uint32_t data;
+	data = HAL_RTCEx_BKUPRead(&RtcHandle, RTC_BKP_DR8);
+	return data;
+}
+
+void printBKP(void) {
+//	uint32_t dados[16];
+//	dados[0] = HAL_RTCEx_BKUPRead(&RtcHandle, RTC_BKP_DR4);
+	PRINTF("\nDR8 %d\n", RTC_BKP_DR8);
+}
+
+void write_sram_bckp(uint8_t data, uint32_t addr){
+ // Write to Backup SRAM with 32-Bit Data
+ (*(__IO uint8_t *) (addr)) = data;
+}
+//BKPSRAM_BASE+4
+uint8_t read_sram_bckp(uint32_t addr){
+ // Check the written Data
+ uint8_t data;
+ data = (*(__IO uint8_t *) (addr));
+ return data;
 }
 
 TimerTime_t RtcTempCompensation(TimerTime_t period, float temperature)

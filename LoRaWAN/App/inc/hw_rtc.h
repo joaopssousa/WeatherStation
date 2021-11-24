@@ -68,7 +68,13 @@ extern "C" {
 #define RTC_TEMP_DEV_TURNOVER                           ( 5.0 )
 
 
-void DateTime_Update(uint8_t* buffer_datetime_real) ;
+void write_sram_bckp(uint8_t data, uint32_t addr);
+
+uint8_t read_sram_bckp(uint32_t addr);
+
+void write_Time(void);
+
+void DateTime_Update(uint8_t* buffer_datetime_real);
 
 void RTC_AlarmConfig(void);
 
