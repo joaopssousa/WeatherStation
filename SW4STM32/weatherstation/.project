@@ -117,6 +117,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Core/src/stm32f4xx_it.c</locationURI>
 		</link>
 		<link>
+			<name>Projects/system_stm32f4xx.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Core/src/system_stm32f4xx.c</locationURI>
+		</link>
+		<link>
 			<name>Projects/test_protections.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/test_protections.c</locationURI>
@@ -130,11 +135,6 @@
 			<name>Projects/ymodem.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/LoRaWAN/App/src/ymodem.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Core/src/system_stm32f4xx.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/FATFS/bsp_driver_sd.c</name>
@@ -302,36 +302,6 @@
 			<locationURI>PARENT-1-PROJECT_LOC/startup_stm32f407xx.s</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/Components/HTS221_Driver.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/hts221/HTS221_Driver.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/HTS221_Driver_HL.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/hts221/HTS221_Driver_HL.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/LPS22HB_Driver.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lps22hb/LPS22HB_Driver.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/LPS22HB_Driver_HL.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lps22hb/LPS22HB_Driver_HL.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/LPS25HB_Driver.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lps25hb/LPS25HB_Driver.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/LPS25HB_Driver_HL.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lps25hb/LPS25HB_Driver_HL.c</locationURI>
-		</link>
-		<link>
 			<name>Drivers/BSP/Components/battery_monitor.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/batteryMonitor/battery_monitor.c</locationURI>
@@ -350,6 +320,11 @@
 			<name>Drivers/BSP/Components/radio.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/sx126x/radio.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/sdcard.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/sd_card/sdcard.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/station.c</name>
@@ -372,34 +347,9 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/sx1276/sx1276.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/Components/timer.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/station/timer.c</locationURI>
-		</link>
-		<link>
 			<name>Drivers/BSP/STM32F4xx_Nucleo/stm32f4xx_nucleo.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/STM32F4xx_Nucleo/stm32f4xx_nucleo.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_humidity.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_humidity.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_pressure.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_pressure.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_temperature.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_temperature.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/sx1276mb1mas/sx1276mb1mas.c</name>

@@ -32,34 +32,8 @@ extern "C" {
 #include "app_sfu.h"
 #include "app_hw.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
-
-/* USER CODE END ET */
-
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
-
-/* USER CODE END EC */
-
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
-
-/* USER CODE END EM */
-
-/* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
-/* USER CODE BEGIN EFP */
-
-/* USER CODE END EFP */
-
-/* Private defines -----------------------------------------------------------*/
 #define USER_BUTTON_Pin GPIO_PIN_3
 #define USER_BUTTON_GPIO_Port GPIOE
 #define LORA_MISO_Pin GPIO_PIN_2
@@ -116,7 +90,7 @@ void Error_Handler(void);
 #define SDA_BME280_Pin GPIO_PIN_7
 #define SDA_BME280_GPIO_Port GPIOB
 
-#define LED_Pin GPIO_PIN_5			// Depois substituir por SPI3
+#define LED_Pin GPIO_PIN_5
 #define LED_GPIO_Port GPIOB
 
 #define BLE_BRK_Pin GPIO_PIN_8
@@ -127,15 +101,6 @@ void Error_Handler(void);
 #define BLE_RX_GPIO_Port GPIOA
 #define BLE_STATE_Pin GPIO_PIN_11
 #define BLE_STATE_GPIO_Port GPIOA
-
-#define SD_DET_CARD_Pin GPIO_PIN_7
-#define SD_DET_CARD_GPIO_Port GPIOC
-
-
-
-/* USER CODE BEGIN Private defines */
-
-/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

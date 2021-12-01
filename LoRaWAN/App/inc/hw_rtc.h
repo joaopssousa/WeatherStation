@@ -47,6 +47,10 @@ extern "C" {
 /* Exported macros -----------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 
+#define _8BITS 0
+#define _16BITS 1
+#define PLUVIOMETER_CNT_REGISTER (BKPSRAM_BASE+20)
+
 /*!
  * \brief Temperature coefficient of the clock source
  */
@@ -68,8 +72,23 @@ extern "C" {
 #define RTC_TEMP_DEV_TURNOVER                           ( 5.0 )
 
 
-void DateTime_Update(uint8_t* buffer_datetime_real) ;
+/*!
+ * @brief Read data from position
+ * @param [IN] position
+ * @retval return data
+ */
+uint32_t HW_RTC_Read_Data(uint32_t position);
 
+/*!
+ * @brief Write data in position
+ * @param [IN] position
+ * @param [IN] data
+ */
+void HW_RTC_Write_Data(uint32_t position, uint32_t data);
+
+
+//TODO Put information about DateTime_Update function
+void DateTime_Update(uint8_t* buffer_datetime_real) ;
 
 /*!
  * @brief Get date and time in buffer format
@@ -209,6 +228,9 @@ void HW_RTC_BKUPRead(uint32_t *Data0, uint32_t *Data1);
  */
 
 void HW_RTC_BKUPWrite(uint32_t Data0, uint32_t Data1);
+
+//TODO Inserir descricao da funcao
+void write_time_to_backup(void);
 
 #ifdef __cplusplus
 }

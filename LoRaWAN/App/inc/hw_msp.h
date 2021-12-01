@@ -103,6 +103,29 @@ void refresh_iwdg(void);
 
 
 /*!
+ * \brief turn on lora
+ */
+void turn_on_lora(void);
+
+/*!
+ * \brief turn off lora
+ */
+void turn_off_lora(void);
+
+/*!
+ * \brief Write Data in SRAM Backup
+ */
+void write_sram_bckp(uint32_t data, uint32_t addr, uint8_t length);
+
+/*!
+ * \brief Read Data in SRAM Backup
+ *
+ * \retval value in SRAM Backup register
+ */
+uint32_t read_sram_bckp(uint32_t addr, uint8_t length);
+
+
+/*!
  * \brief Initializes the boards peripherals.
  */
 void HW_Init(void);

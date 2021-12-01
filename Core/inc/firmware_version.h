@@ -6,6 +6,12 @@
 #define MINOR_FIRMWARE_VERSION 0x01
 #define PATCH_FIRMWARE_VERSION 0x01
 
+#ifdef TEST
+#define PREFIX 0xFF
+#else
+#define PREFIX 0x00
+#endif
+
 /*
 * Device Type List
 * WeatherStation 0x01

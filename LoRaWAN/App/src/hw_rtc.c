@@ -37,6 +37,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "hw.h"
 #include "low_power_manager.h"
 #include "systime.h"
+#include "station.h"
 
 /* Private typedef -----------------------------------------------------------*/
 typedef struct
@@ -50,6 +51,41 @@ typedef struct
 } RtcTimerContext_t;
 
 /* Private define ------------------------------------------------------------*/
+#define MAGIC_NUMBER_CALENDAR_POSITION BKPSRAM_BASE
+#define BKP_HOURS_POSITION    BKPSRAM_BASE+5
+#define BKP_MINUTES_POSITION  BKPSRAM_BASE+6
+#define BKP_SECONDS_POSITION  BKPSRAM_BASE+7
+#define BKP_YEAR_POSITION     BKPSRAM_BASE+8
+#define BKP_MONTH_POSITION    BKPSRAM_BASE+9
+#define BKP_DAY_POSITION      BKPSRAM_BASE+10
+#define BKP_WEEK_DAY_POSITION BKPSRAM_BASE+11
+
+#define MEMO_NUMBER			  0x32F2
+
+//sum of first 3 letters of the week day
+#define MON 298
+#define TUE 302
+#define WED 288
+#define THU 305
+#define FRI 289
+#define SAT 296
+#define SUN 310
+
+//sum of first 3 letters of the month
+#define JAN 281
+#define FEB 269
+#define MAR 288
+#define APR 291
+#define MAY 295
+#define JUN 301
+#define JUL 299
+#define AUG 285
+#define SEP 296
+#define OCT 294
+#define NOV 307
+#define DEC 268
+
+
 
 /* MCU Wake Up Time */
 #define MIN_ALARM_DELAY               3 /* in ticks */
@@ -58,10 +94,10 @@ typedef struct
 #define N_PREDIV_S                 10
 
 /* Synchonuous prediv  */
-#define PREDIV_S                  ((1<<N_PREDIV_S)-1) //1023
+#define PREDIV_S                  7999//((1<<N_PREDIV_S)-1) //1023
 
 /* Asynchonuous prediv   */
-#define PREDIV_A                  (1<<(15-N_PREDIV_S))-1 //31
+#define PREDIV_A                  124//(1<<(15-N_PREDIV_S))-1 //31
 
 /* Sub-second mask definition  */
 #define HW_RTC_ALARMSUBSECONDMASK (N_PREDIV_S<<RTC_ALRMASSR_MASKSS_Pos)
@@ -137,6 +173,13 @@ static void HW_RTC_StartWakeUpAlarm(uint32_t timeoutValue);
 
 static uint64_t HW_RTC_GetCalendarValue(RTC_DateTypeDef *RTC_DateStruct, RTC_TimeTypeDef *RTC_TimeStruct);
 
+static void set_date_time_on_start(void);
+
+static void get_datetime_from_compilation(RTC_TimeTypeDef *RTC_TimeStruct_Real,	RTC_DateTypeDef *RTC_DateStruct_Real);
+
+static uint8_t get_month(void);
+static uint8_t get_week_day(void);
+
 
 /* Exported functions ---------------------------------------------------------*/
 
@@ -148,13 +191,12 @@ static uint64_t HW_RTC_GetCalendarValue(RTC_DateTypeDef *RTC_DateStruct, RTC_Tim
  */
 void HW_RTC_Init(void)
 {
-  if (HW_RTC_Initalized == false)
-  {
-    HW_RTC_SetConfig();
-    //HW_RTC_SetAlarmConfig();
-    HW_RTC_SetTimerContext();
-    HW_RTC_Initalized = true;
-  }
+	if (HW_RTC_Initalized == false) {
+		HW_RTC_SetConfig();
+		//HW_RTC_SetAlarmConfig();
+		HW_RTC_SetTimerContext();
+		HW_RTC_Initalized = true;
+	}
 }
 
 /*!
@@ -165,42 +207,23 @@ void HW_RTC_Init(void)
  */
 static void HW_RTC_SetConfig(void)
 {
-  RTC_TimeTypeDef RTC_TimeStruct;
-  RTC_DateTypeDef RTC_DateStruct;
+	RtcHandle.Instance = RTC;
+	RtcHandle.Init.HourFormat = RTC_HOURFORMAT_24;
+	RtcHandle.Init.AsynchPrediv = PREDIV_A; /*RTC_ASYNCH_PREDIV; */
+	RtcHandle.Init.SynchPrediv = PREDIV_S; /*RTC_SYNCH_PREDIV; */
+	RtcHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
+	RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+	RtcHandle.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
 
+	PRINTF("\r\nENTROU RTC\r\n");
+	if(HAL_RTC_Init(&RtcHandle)!=HAL_OK){
+		while(1);
+	}
 
-  RtcHandle.Instance = RTC;
+	set_date_time_on_start();
 
-  RtcHandle.Init.HourFormat = RTC_HOURFORMAT_24;
-  RtcHandle.Init.AsynchPrediv = PREDIV_A;  /*RTC_ASYNCH_PREDIV; */
-  RtcHandle.Init.SynchPrediv = PREDIV_S;  /*RTC_SYNCH_PREDIV; */
-  RtcHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
-  RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-  RtcHandle.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
-
-  HAL_RTC_Init(&RtcHandle);
-
-  /*Monday 1st January 2016*/
-  RTC_DateStruct.Year = 21;
-  RTC_DateStruct.Month = RTC_MONTH_SEPTEMBER;
-  RTC_DateStruct.Date = 06;
-  RTC_DateStruct.WeekDay = RTC_WEEKDAY_MONDAY;
-  HAL_RTC_SetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN);
-
-  /*at 0:0:0*/
-  RTC_TimeStruct.Hours = 16;
-  RTC_TimeStruct.Minutes = 00;
-
-  RTC_TimeStruct.Seconds = 0;
-  RTC_TimeStruct.TimeFormat = 0;
-  RTC_TimeStruct.SubSeconds = 0;
-  RTC_TimeStruct.StoreOperation = RTC_DAYLIGHTSAVING_NONE;
-  RTC_TimeStruct.DayLightSaving = RTC_STOREOPERATION_RESET;
-
-  HAL_RTC_SetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
-
-  /*Enable Direct Read of the calendar registers (not through Shadow) */
-  HAL_RTCEx_EnableBypassShadow(&RtcHandle);
+	HAL_RTCEx_SetSmoothCalib(&RtcHandle, RTC_SMOOTHCALIB_PERIOD_32SEC, RTC_SMOOTHCALIB_PLUSPULSES_RESET, 130);
+	HAL_RTCEx_EnableBypassShadow(&RtcHandle);
 }
 
 
@@ -715,8 +738,184 @@ void DateTime_Update(uint8_t* buffer_datetime_real) {
 	RTC_TimeStruct_Real.DayLightSaving = RTC_STOREOPERATION_RESET;
 	HAL_RTC_SetTime(&RtcHandle, &RTC_TimeStruct_Real, RTC_FORMAT_BIN);
 
-	HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR2, 0x32F2);
+	HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR3, MEMO_NUMBER);
+	write_sram_bckp(MEMO_NUMBER, MAGIC_NUMBER_CALENDAR_POSITION, _16BITS);
 
+}
+
+uint32_t HW_RTC_Read_Data(uint32_t position)
+{
+	for (int i=RTC_BKP_DR0; i< RTC_BKP_DR19;i++){
+		PRINTF("bckp%d: %ld\r\n",i,  HAL_RTCEx_BKUPRead(&RtcHandle, i));
+	}
+	return HAL_RTCEx_BKUPRead(&RtcHandle, position);
+}
+
+void HW_RTC_Write_Data(uint32_t position, uint32_t data)
+{
+	HAL_PWR_EnableBkUpAccess();
+	HAL_RTCEx_BKUPWrite(&RtcHandle, position, data);
+	HAL_PWR_DisableBkUpAccess();
+}
+
+void write_time_to_backup(void)
+{
+    RTC_TimeTypeDef RTC_TimeStruct;
+    RTC_DateTypeDef RTC_DateStruct;
+    uint32_t first_read;
+    HAL_RTC_GetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
+
+
+    /* make sure it is correct due to asynchronus nature of RTC*/
+	do
+	{
+		first_read = LL_RTC_TIME_GetSubSecond(RTC);
+		HAL_RTC_GetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN);
+		HAL_RTC_GetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
+
+	}while (first_read != LL_RTC_TIME_GetSubSecond(RTC));
+
+
+    write_sram_bckp(RTC_TimeStruct.Hours, BKP_HOURS_POSITION, _8BITS);
+    write_sram_bckp(RTC_TimeStruct.Minutes, BKP_MINUTES_POSITION, _8BITS);
+    write_sram_bckp(RTC_TimeStruct.Seconds, BKP_SECONDS_POSITION, _8BITS);
+    write_sram_bckp(RTC_DateStruct.Year, BKP_YEAR_POSITION, _8BITS);
+    write_sram_bckp(RTC_DateStruct.Month, BKP_MONTH_POSITION, _8BITS);
+    write_sram_bckp(RTC_DateStruct.Date, BKP_DAY_POSITION, _8BITS);
+    write_sram_bckp(RTC_DateStruct.WeekDay, BKP_WEEK_DAY_POSITION, _8BITS);
+}
+
+
+static uint8_t get_week_day(void){
+	uint16_t weekday = __TIMESTAMP__[0]+__TIMESTAMP__[1]+__TIMESTAMP__[2];
+
+	switch (weekday){
+	case MON:
+		return RTC_WEEKDAY_MONDAY;
+	case TUE:
+		return RTC_WEEKDAY_TUESDAY;
+	case WED:
+		return RTC_WEEKDAY_WEDNESDAY;
+	case THU:
+		return RTC_WEEKDAY_THURSDAY;
+	case FRI:
+		return RTC_WEEKDAY_FRIDAY;
+	case SAT:
+		return RTC_WEEKDAY_SATURDAY;
+	case SUN:
+		return RTC_WEEKDAY_SUNDAY;
+	}
+	return -1;
+
+}
+
+static uint8_t get_month(void){
+	uint16_t month = __TIMESTAMP__[4]+__TIMESTAMP__[5]+__TIMESTAMP__[6];
+	switch (month){
+	case JAN:
+		return RTC_MONTH_JANUARY;
+	case FEB:
+		return RTC_MONTH_FEBRUARY;
+	case MAR:
+		return RTC_MONTH_MARCH;
+	case APR:
+		return RTC_MONTH_APRIL;
+	case MAY:
+		return RTC_MONTH_MAY;
+	case JUN:
+		return RTC_MONTH_JUNE;
+	case JUL:
+		return RTC_MONTH_JULY;
+	case AUG:
+		return RTC_MONTH_AUGUST;
+	case SEP:
+		return RTC_MONTH_SEPTEMBER;
+	case OCT:
+		return RTC_MONTH_OCTOBER;
+	case NOV:
+		return RTC_MONTH_NOVEMBER;
+	case DEC:
+		return RTC_MONTH_DECEMBER;
+	}
+	return -1;
+}
+
+static void get_datetime_from_compilation(RTC_TimeTypeDef *RTC_TimeStruct_Real,	RTC_DateTypeDef *RTC_DateStruct_Real){
+	char s[2];
+
+	s[0] = __TIMESTAMP__[11];
+	s[1] = __TIMESTAMP__[12];
+
+	RTC_TimeStruct_Real->Hours = atoi(s);
+	RTC_TimeStruct_Real->Hours = 12;
+
+	PRINTF("%s -> Hr: %d \r\n", s, RTC_TimeStruct_Real->Hours);
+
+	s[0] = __TIMESTAMP__[14];
+	s[1] = __TIMESTAMP__[15];
+	RTC_TimeStruct_Real->Minutes = atoi(s);
+	RTC_TimeStruct_Real->Minutes = 57;
+	PRINTF("%s -> Min: %d \r\n", s, RTC_TimeStruct_Real->Minutes);
+
+	s[0] = __TIMESTAMP__[17];
+	s[1] = __TIMESTAMP__[18];
+	RTC_TimeStruct_Real->Seconds = atoi(s);
+	RTC_TimeStruct_Real->Seconds = 00;
+	PRINTF("%s -> Sec: %d \r\n", s, RTC_TimeStruct_Real->Seconds);
+
+	s[0] = __TIMESTAMP__[8];
+	s[1] = __TIMESTAMP__[9];
+	RTC_DateStruct_Real->Date = atoi(s);
+	RTC_DateStruct_Real->Date = 30;
+	PRINTF("%s -> Dt: %d \r\n",s, RTC_DateStruct_Real->Date);
+
+	s[0] = __TIMESTAMP__[22];
+	s[1] = __TIMESTAMP__[23];
+	RTC_DateStruct_Real->Year = atoi(s);
+	RTC_DateStruct_Real->Year = 21;
+	PRINTF("%s -> Yr: %d \r\n", s, RTC_DateStruct_Real->Year);
+
+	RTC_DateStruct_Real->Month = get_month();
+	RTC_DateStruct_Real->Month = RTC_MONTH_NOVEMBER;
+	PRINTF("Month: %d \r\n", RTC_DateStruct_Real->Month);
+
+	RTC_DateStruct_Real->WeekDay = get_week_day();
+	RTC_DateStruct_Real->WeekDay = RTC_WEEKDAY_TUESDAY;
+	PRINTF("WeekDay: %d \r\n", RTC_DateStruct_Real->WeekDay);
+
+}
+
+static void set_date_time_on_start(void){
+	RTC_TimeTypeDef RTC_TimeStruct;
+	RTC_DateTypeDef RTC_DateStruct;
+	if ((read_sram_bckp(MAGIC_NUMBER_CALENDAR_POSITION, _16BITS)) != MEMO_NUMBER) {
+		PRINTF("ENTROU set_date_time_on_start\r\n");
+		write_sram_bckp(0, PLUVIOMETER_CNT_REGISTER, _16BITS);
+		get_datetime_from_compilation(&RTC_TimeStruct, &RTC_DateStruct);
+		RTC_TimeStruct.StoreOperation = RTC_DAYLIGHTSAVING_NONE;
+		RTC_TimeStruct.DayLightSaving = RTC_STOREOPERATION_RESET;
+		HAL_RTC_SetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
+		HAL_RTC_SetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN);
+
+		write_sram_bckp(MEMO_NUMBER, MAGIC_NUMBER_CALENDAR_POSITION, _16BITS);
+		HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR3, MEMO_NUMBER);
+	}
+	else{
+		RTC_TimeStruct.Hours = read_sram_bckp(BKP_HOURS_POSITION, _8BITS);
+		RTC_TimeStruct.Minutes = read_sram_bckp(BKP_MINUTES_POSITION, _8BITS);
+		RTC_TimeStruct.Seconds = read_sram_bckp(BKP_SECONDS_POSITION, _8BITS);
+		RTC_TimeStruct.StoreOperation = RTC_DAYLIGHTSAVING_NONE;
+		RTC_TimeStruct.DayLightSaving = RTC_STOREOPERATION_RESET;
+		HAL_RTC_SetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
+
+		RTC_DateStruct.Year = read_sram_bckp(BKP_YEAR_POSITION, _8BITS);
+		RTC_DateStruct.Month = read_sram_bckp(BKP_MONTH_POSITION, _8BITS);
+		RTC_DateStruct.Date = read_sram_bckp(BKP_DAY_POSITION, _8BITS);
+		RTC_DateStruct.WeekDay = read_sram_bckp(BKP_WEEK_DAY_POSITION, _8BITS);
+		HAL_RTC_SetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN);
+
+
+	}
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

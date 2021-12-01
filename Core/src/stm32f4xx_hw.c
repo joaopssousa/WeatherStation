@@ -42,6 +42,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "battery_monitor.h"
 #include "ble.h"
 #include "com.h"
+#include "sdcard.h"
 
 
 /*!
@@ -104,48 +105,66 @@ static void MX_IWDG_Init(void);
   */
 void HW_Init(void)
 {
+
   if (McuInitialized == false)
   {
 #if defined( USE_BOOTLOADER )
     // Set the Vector Table base location at 0x3000
-    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x3000);
+    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x40200);
 #endif
+    MX_IWDG_Init();
 
+    refresh_iwdg();
     HW_AdcInit();
 
+    refresh_iwdg();
     Radio.IoInit();
 
+    refresh_iwdg();
     HW_SPI_Init();
 
-    HW_RTC_Init();
-
-    HW_I2C1_Init();
-
+    refresh_iwdg();
     TraceInit();
 
+    refresh_iwdg();
+    HW_RTC_Init();
+
+    refresh_iwdg();
+    HW_I2C1_Init();
+
+    refresh_iwdg();
     BSP_sensor_Init();
 
+    refresh_iwdg();
     Ble_Init_GPIO();
 
+    refresh_iwdg();
     COM_Init();
 
+    refresh_iwdg();
     MX_USART1_UART_Init();
 
+    refresh_iwdg();
     MX_TIM2_Init();
 
+    refresh_iwdg();
     MX_TIM3_Init();
 
+    refresh_iwdg();
     MX_SDIO_SD_Init();
+
+    refresh_iwdg();
     MX_FATFS_Init();
 
+    refresh_iwdg();
     // Inicialização da Base do timer
     HAL_TIM_Base_Start_IT(&htim2);
 
+    refresh_iwdg();
     HAL_UART_Receive_IT(&huart1, rx_byte_uart1, 1);
 
+    refresh_iwdg();
     init_battery_monitor(&hadc);							/* Initialize Battery monitor */
-
-    MX_IWDG_Init();
 
     McuInitialized = true;
   }
@@ -253,6 +272,14 @@ void HW_GpioInit(void)
 	  GPIO_InitStruct.Pull = GPIO_PULLUP;
 	  HAL_GPIO_Init(SD_DET_CARD_GPIO_Port, &GPIO_InitStruct);
 
+	  //Mosfet Lora config
+	  GPIO_InitStruct.Pin = GPIO_PIN_12;
+	  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	  GPIO_InitStruct.Pull = GPIO_PULLUP;
+	  GPIO_InitStruct.Speed = GPIO_SPEED_MEDIUM;
+
+	  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
 	  /* DMA controller clock enable */
 	  __HAL_RCC_DMA2_CLK_ENABLE();
 
@@ -298,8 +325,7 @@ void HW_GpioInit(void)
 
 
 
-void SystemClock_Config(void)
-{
+void SystemClock_Config(void) {
 	RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
 	RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 	RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
@@ -308,46 +334,63 @@ void SystemClock_Config(void)
 	 */
 	__HAL_RCC_PWR_CLK_ENABLE();
 	__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-	/** Initializes the RCC Oscillators according to the specified parameterstraduto
-	 * in the RCC_OscInitTypeDef structure.
+	/** Initializes the RCC Oscillators according to the specified parameters
+	 * in the
+	 *  RCC_OscInitTypeDef structure.
 	 */
-	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_LSI;
-	RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-	RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-	RCC_OscInitStruct.LSIState = RCC_LSI_ON;
-	//RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
 
-	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-	RCC_OscInitStruct.PLL.PLLM = 16;
-	RCC_OscInitStruct.PLL.PLLN = 192;
-	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-	RCC_OscInitStruct.PLL.PLLQ = 4;
+		RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI
+	            |RCC_OSCILLATORTYPE_HSE;
+		RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+		RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+		RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+		RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+		//RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
 
-	//RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+		RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+		RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+		RCC_OscInitStruct.PLL.PLLM = 16;
+		RCC_OscInitStruct.PLL.PLLN = 192;
+		RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+		RCC_OscInitStruct.PLL.PLLQ = 4;
+
+		//RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+//	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+//	RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+//	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+//	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+//	RCC_OscInitStruct.PLL.PLLM = 4;
+//	RCC_OscInitStruct.PLL.PLLN = 168;
+//	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+//	RCC_OscInitStruct.PLL.PLLQ = 7;
 	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
 		Error_Handler();
 	}
 	/** Initializes the CPU, AHB and APB buses clocks
 	 */
+//	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+//			| RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+//	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+//	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+//	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+//	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
-			| RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+				| RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+		RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+		RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+		RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+		RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
 	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
 		Error_Handler();
 	}
 	PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-	PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
-
+	PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_HSE_DIV8;
 	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
 		Error_Handler();
 	}
-
 }
+
 uint32_t HW_GetRandomSeed(void)
 {
   return ((*(uint32_t *)ID1) ^ (*(uint32_t *)ID2) ^ (*(uint32_t *)ID3));
@@ -521,40 +564,39 @@ void HW_AdcDeInit(void)
 uint16_t HW_AdcReadChannel(uint32_t Channel)
 {
 
-  ADC_ChannelConfTypeDef adcConf = {0};
+	ADC_ChannelConfTypeDef adcConf = {0};
 
-  uint16_t adcData = 0;
+	uint16_t adcData = 0;
 
-  HW_AdcInit();
+	HW_AdcInit();
 
-  if (AdcInitialized == true)
-  {
+	if (AdcInitialized == true)
+	{
+		ADCCLK_ENABLE();
 
-    ADCCLK_ENABLE();
+		/*calibrate ADC if any calibraiton hardware*/
+		//HAL_ADCEx_Calibration_Start(&hadc, ADC_EOC_SINGLE_CONV);
 
-    /*calibrate ADC if any calibraiton hardware*/
-    //HAL_ADCEx_Calibration_Start(&hadc, ADC_EOC_SINGLE_CONV);
+		/* configure adc channel */
+		adcConf.SamplingTime = ADC_SAMPLETIME_56CYCLES;
+		adcConf.Channel = Channel;
+		adcConf.Rank = 1;
+		HAL_ADC_ConfigChannel(&hadc, &adcConf);
 
-    /* configure adc channel */
-    adcConf.SamplingTime = ADC_SAMPLETIME_56CYCLES;
-    adcConf.Channel = Channel;
-    adcConf.Rank = 1;
-    HAL_ADC_ConfigChannel(&hadc, &adcConf);
+		/* Start the conversion process */
+		HAL_ADC_Start(&hadc);
 
-    /* Start the conversion process */
-    HAL_ADC_Start(&hadc);
+		/* Wait for the end of conversion */
+		HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
 
-    /* Wait for the end of conversion */
-    HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
+		/* Get the converted value of regular channel */
+		adcData = HAL_ADC_GetValue(&hadc);
+		__HAL_ADC_DISABLE(&hadc);
+		//ADC_Disable(&hadc) ;
 
-    /* Get the converted value of regular channel */
-    adcData = HAL_ADC_GetValue(&hadc);
-    __HAL_ADC_DISABLE(&hadc);
-    //ADC_Disable(&hadc) ;
-
-    ADCCLK_DISABLE();
-  }
-  return adcData;
+		ADCCLK_DISABLE();
+	}
+	return adcData;
 }
 
 /**
@@ -674,9 +716,46 @@ static void MX_IWDG_Init(void)
 
 }
 
+void turn_on_lora(void){
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_SET);
+}
+
+void turn_off_lora(void){
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_RESET);
+}
+
 void refresh_iwdg(void){
 	HAL_IWDG_Refresh(&hiwdg);
 }
+
+//void enable_sram_bckp(){
+//	RCC_APB1ENR_PWREN;
+//	RCC_AHB1ENR_BKPSRAMEN;
+//	PWR_BackupAccessCmd(ENABLE);
+//
+//	PWR_BackupRegulatorCmd(ENABLE);
+//	// Wait until the Backup SRAM low power Regulator is ready
+//	while(PWR_GetFlagStatus(PWR_FLAG_BRR) == RESET);
+//}
+
+void write_sram_bckp(uint32_t data, uint32_t addr, uint8_t length){
+	// Write to Backup SRAM with 32-Bit Data
+	if(length==_8BITS)
+		(*(__IO uint8_t *) (addr)) = data;
+	else
+		(*(__IO uint16_t *) (addr)) = data;
+}
+
+uint32_t read_sram_bckp(uint32_t addr, uint8_t length){
+	// Check the written Data
+	uint32_t data;
+	if(length==_8BITS)
+		data = (*(__IO uint8_t *) (addr));
+	else
+		data = (*(__IO uint16_t *) (addr));
+	return data;
+}
+
 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
