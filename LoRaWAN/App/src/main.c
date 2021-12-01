@@ -268,9 +268,6 @@ int main(void)
 		{
 		  // Inicio de outro dia, zera-se o contador de precipitação.
 		  pluviometer_count = 0;
-		  write_sram_bckp(pluviometer_count, PLUVIOMETER_CNT_REGISTER, _16BITS);
-		  turn_off_bme();
-		  HAL_NVIC_SystemReset();
 		}
 		write_sram_bckp(pluviometer_count, PLUVIOMETER_CNT_REGISTER, _16BITS);
 	}
@@ -345,6 +342,7 @@ int main(void)
     	refresh_iwdg();
     	HAL_TIM_Base_Start(&htim2);
     	HAL_TIM_Base_Start(&htim3);
+    	reset_bme();
 
     }
 
@@ -460,6 +458,10 @@ static void LORA_RxData(lora_AppData_t *AppData)
 		}
     	if(AppData->BuffSize == 0x05){
     		HAL_NVIC_SystemReset();
+    	}
+    	if(AppData->BuffSize == 6)
+    	{
+
     	}
 		if (AppData->BuffSize == 0x0D)
 		{
