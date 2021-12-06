@@ -256,7 +256,6 @@ int main(void)
   while (1)
   {
 	refresh_iwdg();
-	write_time_to_backup();
 
 	//Verify if is midnight to reset pluviometer counter
 	if (flagsStation.pluviometer)
@@ -355,6 +354,8 @@ int main(void)
     	refresh_iwdg();
     }
 
+    refresh_iwdg();
+    write_time_to_backup();
     //If a flag is set at this point, mcu must not enter low power and must loop
     //DISABLE_IRQ();
 

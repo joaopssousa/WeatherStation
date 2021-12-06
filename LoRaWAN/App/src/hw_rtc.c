@@ -848,13 +848,13 @@ static void get_datetime_from_compilation(RTC_TimeTypeDef *RTC_TimeStruct_Real,	
 
 	RTC_TimeStruct_Real->Hours = atoi(s);
 	RTC_TimeStruct_Real->Hours = 12;
-
+	RTC_TimeStruct_Real->Hours = 17;
 	PRINTF("%s -> Hr: %d \r\n", s, RTC_TimeStruct_Real->Hours);
 
 	s[0] = __TIMESTAMP__[14];
 	s[1] = __TIMESTAMP__[15];
 	RTC_TimeStruct_Real->Minutes = atoi(s);
-	RTC_TimeStruct_Real->Minutes = 57;
+	RTC_TimeStruct_Real->Minutes = 45;
 	PRINTF("%s -> Min: %d \r\n", s, RTC_TimeStruct_Real->Minutes);
 
 	s[0] = __TIMESTAMP__[17];
@@ -866,7 +866,7 @@ static void get_datetime_from_compilation(RTC_TimeTypeDef *RTC_TimeStruct_Real,	
 	s[0] = __TIMESTAMP__[8];
 	s[1] = __TIMESTAMP__[9];
 	RTC_DateStruct_Real->Date = atoi(s);
-	RTC_DateStruct_Real->Date = 30;
+	RTC_DateStruct_Real->Date = 03;
 	PRINTF("%s -> Dt: %d \r\n",s, RTC_DateStruct_Real->Date);
 
 	s[0] = __TIMESTAMP__[22];
@@ -876,11 +876,11 @@ static void get_datetime_from_compilation(RTC_TimeTypeDef *RTC_TimeStruct_Real,	
 	PRINTF("%s -> Yr: %d \r\n", s, RTC_DateStruct_Real->Year);
 
 	RTC_DateStruct_Real->Month = get_month();
-	RTC_DateStruct_Real->Month = RTC_MONTH_NOVEMBER;
+	RTC_DateStruct_Real->Month = RTC_MONTH_DECEMBER;
 	PRINTF("Month: %d \r\n", RTC_DateStruct_Real->Month);
 
 	RTC_DateStruct_Real->WeekDay = get_week_day();
-	RTC_DateStruct_Real->WeekDay = RTC_WEEKDAY_TUESDAY;
+	RTC_DateStruct_Real->WeekDay = RTC_WEEKDAY_FRIDAY;
 	PRINTF("WeekDay: %d \r\n", RTC_DateStruct_Real->WeekDay);
 
 }

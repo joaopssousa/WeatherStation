@@ -1,19 +1,72 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "WeatherStation",
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/Core/Inc",
+                "${workspaceFolder}/../../Drivers/BSP/Components/batteryMonitor",
+                "${workspaceFolder}/../../Middlewares/ST/STM32_Secure_Engine/Core",
+                "${workspaceFolder}/../../Middlewares/Third_Party/LoRaWAN/Patterns/Basic",
+                "${workspaceFolder}/../../Middlewares/Third_Party/LoRaWAN/Patterns/Advanced/LmHandler/packages",
+                "${workspaceFolder}/../../Middlewares/Third_Party/LoRaWAN/Patterns/Advanced/LmHandler",
+                "${workspaceFolder}/../../Middlewares/Third_Party/LoRaWAN/Patterns/Advanced",
+                "${workspaceFolder}/../../Middlewares/Third_Party/LoRaWAN/Mac/region",
+                "${workspaceFolder}/LoRaWAN/App/inc",
+                "${workspaceFolder}/../../Drivers/CMSIS/Device/ST/STM32F4xx/Include",
+                "${workspaceFolder}/../../Drivers/BSP/STM32F4xx_Nucleo",
+                "${workspaceFolder}/../../Drivers/STM32F4xx_HAL_Driver/Inc",
+                "${workspaceFolder}/../../Drivers/BSP/Components/ble",
+                "${workspaceFolder}/../../Drivers/CMSIS/Include",
+                "${workspaceFolder}/../../Middlewares/Third_Party/LoRaWAN/Crypto",
+                "${workspaceFolder}/../../Middlewares/Third_Party/FatFs/src",
+                "${workspaceFolder}/../../Middlewares/Third_Party/LoRaWAN/Mac",
+                "${workspaceFolder}/../../Middlewares/Third_Party/LoRaWAN/Phy",
+                "${workspaceFolder}/../../Middlewares/Third_Party/LoRaWAN/Utilities",
+                "${workspaceFolder}/../../Drivers/BSP/X_NUCLEO_IKS01A1",
+                "${workspaceFolder}/../../Drivers/BSP/X_NUCLEO_IKS01A2",
+                "${workspaceFolder}/../../Drivers/BSP/Components/Common",
+                "${workspaceFolder}/../../Drivers/FATFS/App",
+                "${workspaceFolder}/../../Drivers/FATFS/Target",
+                "${workspaceFolder}/../../Drivers/BSP/Components/station",
+                "${workspaceFolder}/../../Drivers/BSP/Components/hts221",
+                "${workspaceFolder}/../../Drivers/BSP/Components/lps22hb",
+                "${workspaceFolder}/../../Drivers/BSP/Components/lps25hb",
+                "${workspaceFolder}/../../Drivers/BSP/Components/sx1276",
+                "${workspaceFolder}/../../Drivers/BSP/sx1276mb1mas",
+                "${workspaceFolder}/../../Projects/Bootloader/Linker_Common/SW4STM32",
+                "${workspaceFolder}/../../Projects/Bootloader/2_Images_SECoreBin/Inc",
+                "${workspaceFolder}/../../Projects/Bootloader/2_Images_SBSFU/SBSFU/App"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE"
+                "_UNICODE",
+                "STM32F407xx",
+                "USE_STM32F4XX_NUCLEO",
+                "USE_HAL_DRIVER",
+                "REGION_AU915"
             ],
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "windows-msvc-x64"
+            "compilerPath": "${env:ARMGCC_DIR}/arm-none-eabi-gcc.exe",
+            "compilerArgs": [
+                "-mcpu=cortex-m4",
+                "-g3",
+                "-c",
+                "-x",
+                "assembler-with-cpp",
+                "-MMD",
+                "-MP",
+                "-MF\"Projects/SW4STM32/startup_stm32f407xx.d\"",
+                "-MT\"Projects/SW4STM32/startup_stm32f407xx.o\"",
+                "--specs=nano.specs",
+                "-mfpu=fpv4-sp-d16",
+                "-mfloat-abi=hard",
+                "-mthumb",
+                "-o \"Projects/SW4STM32/startup_stm32f407xx.o\" \"C:/Projetos/AgroliteHW/Projects/WeatherStation/SW4STM32/startup_stm32f407xx.s\""
+            ],
+            "intelliSenseMode": "gcc-arm"
         }
     ],
     "version": 4
