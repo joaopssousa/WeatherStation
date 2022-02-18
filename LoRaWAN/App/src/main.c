@@ -67,11 +67,13 @@ char buffer_tag[50];
  * @note Please note that when ADR is enabled the end-device should be static
  */
 #define LORAWAN_ADR_STATE LORAWAN_ADR_OFF //modified - old - ON
+
 /*!
  * LoRaWAN Default data Rate Data Rate
  * @note Please note that LORAWAN_DEFAULT_DATA_RATE is used only when ADR is disabled
  */
 #define LORAWAN_DEFAULT_DATA_RATE DR_3 //modified - old - DR_0
+
 /*!
  * LoRaWAN application port
  * @note do not use 224. It is reserved for certification
@@ -185,8 +187,12 @@ static  LoRaParam_t LoRaParamInit = {LORAWAN_ADR_STATE,
                                     };
 /***********************************************************************************************/
 
+static void enter_update_mode(void);
+static void quit_update_mode(void);
+
 double vbat;
 uint16_t vbat_int;
+
 
 /**
   * @brief  Main program
@@ -205,8 +211,7 @@ int main(void)
   HW_Init();										/* Configure the hardware*/
 
   refresh_iwdg();
-  //reads pluviometer counter
-  //PRINTF("Contador do pluviometro %d\r\n", pluviometer_count);
+
   pluviometer_count = read_sram_bckp(PLUVIOMETER_CNT_REGISTER, _16BITS);
   PRINTF("Contador do pluviometro %d\r\n", pluviometer_count);
 
@@ -286,6 +291,7 @@ int main(void)
 		vbat_int = (uint16_t)(double)(vbat*100);
 	}
 
+	refresh_iwdg();
 	//Bluetooth message handler
 	if (flags_ble.enable_handler)
 	{
@@ -300,6 +306,7 @@ int main(void)
 		reset_bme();
 	}
 
+	refresh_iwdg();
 	//Firmware update mode
 	if (flags_ble.update_mode==SET)
 	{
@@ -307,29 +314,16 @@ int main(void)
 		refresh_iwdg();
 
 		flags_ble.update_mode = RESET;
-		refresh_iwdg();
-		//Clear Usart to receive new firmware
-		HAL_NVIC_DisableIRQ(USART1_IRQn);
-		HAL_UART_AbortReceive_IT(&huart1);
-		HAL_UART_DeInit(&huart1);
-		HAL_Delay(1);
-		HAL_TIM_Base_Stop(&htim2);
-		HAL_TIM_Base_Stop(&htim3);
-		COM_Init();
-		HAL_Delay(1);
-		COM_Flush();
 		//Enter in Update Mode
 		refresh_iwdg();
+		enter_update_mode();
 		FW_UPDATE_Run();
 		refresh_iwdg();
-		HAL_TIM_Base_Start(&htim2);
-		HAL_TIM_Base_Start(&htim3);
-		//ReEnable Ble Interrupts
-		MX_USART1_UART_Init();
-		HAL_UART_Receive_IT(&huart1, rx_byte_uart1, 1);
+		quit_update_mode();
 		refresh_iwdg();
 	}
 
+	refresh_iwdg();
 	//Send WeatherStation Data
     if (AppProcessRequest == LORA_SET)
     {
@@ -342,7 +336,6 @@ int main(void)
     	HAL_TIM_Base_Start(&htim2);
     	HAL_TIM_Base_Start(&htim3);
     	reset_bme();
-
     }
 
     //Process Lora
@@ -372,6 +365,31 @@ int main(void)
     //ENABLE_IRQ();
 
   }
+}
+
+static void quit_update_mode(void)
+{
+	HAL_TIM_Base_Start(&htim2);
+	HAL_TIM_Base_Start(&htim3);
+	//ReEnable Ble Interrupts
+	MX_USART1_UART_Init();
+	HAL_UART_Receive_IT(&huart1, rx_byte_uart1, 1);
+	HAL_NVIC_SystemReset();
+}
+
+static void enter_update_mode(void)
+{
+	refresh_iwdg();
+	//Clear Usart to receive new firmware
+	HAL_NVIC_DisableIRQ(USART1_IRQn);
+	HAL_UART_AbortReceive_IT(&huart1);
+	HAL_UART_DeInit(&huart1);
+	HAL_Delay(1);
+	HAL_TIM_Base_Stop(&htim2);
+	HAL_TIM_Base_Stop(&htim3);
+	COM_Init();
+	HAL_Delay(1);
+	COM_Flush();
 }
 
 void LoraMacProcessNotify(void)

@@ -117,7 +117,7 @@ extern "C" {
  *
  * \remark see STATIC_DEVICE_EUI comments
  */
-#define LORAWAN_DEVICE_EUI                                 { IEEE_OUI, DEVICE_TYPE, PREFIX, 0x00, 0x00, 0x01 }
+#define LORAWAN_DEVICE_EUI                                 { IEEE_OUI, DEVICE_TYPE, PREFIX, 0x00, 0x00, 0x05 }
 
 /*!
  * App/Join server IEEE EUI (big endian)
@@ -160,7 +160,7 @@ extern "C" {
  *
  * \remark see STATIC_DEVICE_ADDRESS comments
  */
-#define LORAWAN_DEVICE_ADDRESS                             ( uint32_t )0x10000001 /*| PREFIX<<24*/
+#define LORAWAN_DEVICE_ADDRESS                             ( uint32_t )0x10000005 /*| PREFIX<<24*/
 
 /*!
  * Forwarding Network session integrity key
